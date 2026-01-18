@@ -18,7 +18,7 @@ public class Logger {
     private static Logger instance;
     private Path logFile;
     private boolean logToFile = true;
-    private LogLevel logLevel;
+    private LogLevel logLevel = LogLevel.INFO;
 
     private final PrintStream out;
     private final PrintStream err;
