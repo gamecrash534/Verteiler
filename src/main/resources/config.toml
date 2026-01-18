@@ -1,0 +1,10 @@
+[server]
+host = "0.0.0.0"
+port = 2987
+data_directory = "./data"
+
+[logging]
+level = "INFO"
+log_access = true
+log_to_file = false
+log_directory = "./logs"

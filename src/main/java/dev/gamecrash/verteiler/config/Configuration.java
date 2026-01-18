@@ -1,7 +1,5 @@
 package dev.gamecrash.verteiler.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tomlj.Toml;
 import org.tomlj.TomlParseResult;
 
@@ -13,13 +11,32 @@ import java.nio.file.Path;
 import java.util.UUID;
 
 public class Configuration {
-    private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
     private final TomlParseResult toml;
     private static Configuration instance;
+
+    // Server
+    public final String host;
+    public final int port;
+    public final String dataDirectory;
+
+    // Logging
+    public final String logLevel;
+    public final boolean logAccess;
+    public final boolean logToFile;
+    public final String logDirectory;
 
     public Configuration(Path configPath) throws IOException {
         if (!Files.exists(configPath)) createDefaultConfig(configPath);
         toml = Toml.parse(configPath);
+
+        host = getString("server.host", "0.0.0.0");
+        port = getInt("server.port", 2987);
+        dataDirectory = getString("server.data_directory", "./data");
+
+        logLevel = getString("logging.level", "INFO");
+        logAccess = getBoolean("logging.log_access", true);
+        logToFile = getBoolean("logging.log_to_file", false);
+        logDirectory = getString("logging.log_directory", "./logs");
 
         instance = this;
     }
@@ -28,15 +45,11 @@ public class Configuration {
         return UUID.randomUUID().toString().replace("-", "");
     }
 
-    private void createDefaultConfig(Path path) {
-        try (InputStream stream = getClass().getClassLoader().getResourceAsStream("config.toml")) {
-            String conf = new String(stream.readAllBytes(), StandardCharsets.UTF_8).formatted(generateToken());
-            if (path.getParent() != null) Files.createDirectories(path.getParent());
-            Files.writeString(path, conf);
-        } catch (Exception e) {
-            logger.error("Could not load config, stopping");
-            System.exit(1);
-        }
+    private void createDefaultConfig(Path path) throws IOException {
+        InputStream stream = getClass().getClassLoader().getResourceAsStream("config.toml")
+        String conf = new String(stream.readAllBytes(), StandardCharsets.UTF_8).formatted(generateToken());
+        if (path.getParent() != null) Files.createDirectories(path.getParent());
+        Files.writeString(path, conf);
     }
 
     public Object getObject(String key, Object defaultValue) {

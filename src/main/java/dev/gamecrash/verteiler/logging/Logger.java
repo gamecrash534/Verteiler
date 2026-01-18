@@ -1,5 +1,7 @@
 package dev.gamecrash.verteiler.logging;
 
+import dev.gamecrash.verteiler.config.Configuration;
+
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -14,9 +16,9 @@ import java.util.Set;
 
 public class Logger {
     private static Logger instance;
-    private final Path loggingDirectory;
     private Path logFile;
-    private final boolean logToFile;
+    private boolean logToFile = true;
+    private LogLevel logLevel;
 
     private final PrintStream out;
     private final PrintStream err;
@@ -26,7 +28,6 @@ public class Logger {
     public static final String RESET = "\u001B[0m";
     public static final String BOLD = "\u001B[1m";
     public static final String DIM = "\u001B[2m";
-
     public static final String RED = "\u001B[38;5;196m";
     public static final String ORANGE = "\u001B[38;5;208m";
     public static final String BLUE = "\u001B[38;5;75m";
@@ -37,19 +38,28 @@ public class Logger {
         this.out = System.out;
         this.err = System.err;
         this.dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        logToFile = true;
-        loggingDirectory = Paths.get("./logs");
+
+        instance = this;
+    }
+
+    public void loadConfig() {
+        Configuration config = Configuration.getInstance();
+
+        logToFile = config.logToFile;
         if (logToFile) {
             try {
+                Path loggingDirectory = Paths.get(config.logDirectory);
                 Files.createDirectories(loggingDirectory);
                 logFile = Files.createFile(loggingDirectory.resolve(LocalDateTime.now().format(dateFormatter) + ".log"));
             } catch (IOException e) {
                 error("Could not create logging directories! ", e);
                 System.exit(1);
             }
+        } else {
+            logFileQueue.clear();
         }
 
-        instance = this;
+        logLevel = LogLevel.valueOf(config.logLevel);
     }
 
     private String getCallerInfo() {
@@ -120,6 +130,8 @@ public class Logger {
     }
 
     private void log(LogLevel level, String message, Object... args) {
+        if (level.ordinal() < logLevel.ordinal()) return;
+
         String caller = getCallerInfo();
         String formattedMessage = formatWithArgs(message, args);
         String output = formatMessage(level, formattedMessage, caller);
