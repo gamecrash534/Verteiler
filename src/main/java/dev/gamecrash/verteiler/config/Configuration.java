@@ -27,6 +27,10 @@ public class Configuration {
     public final boolean logToFile;
     public final String logDirectory;
 
+    // Admin
+    public final boolean adminEnabled;
+    public final String adminToken;
+
     public Configuration(Path configPath) throws IOException {
         if (!Files.exists(configPath)) createDefaultConfig(configPath);
         toml = Toml.parse(configPath);
@@ -39,6 +43,9 @@ public class Configuration {
         logAccess = getBoolean("logging.log_access", true);
         logToFile = getBoolean("logging.log_to_file", false);
         logDirectory = getString("logging.log_directory", "./logs");
+
+        adminEnabled = getBoolean("admin.enabled", true);
+        adminToken = getString("admin.token", generateToken());
     }
 
     public static Configuration load(Path path) {

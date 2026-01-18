@@ -5,6 +5,8 @@ import dev.gamecrash.verteiler.logging.Logger;
 import dev.gamecrash.verteiler.storage.FileStorage;
 import io.javalin.Javalin;
 
+import java.io.IOException;
+
 public class WebServer {
     private static final Logger logger = Logger.getInstance();
 
@@ -24,12 +26,53 @@ public class WebServer {
                     ctx.status(), String.format("%.2f", ms)));
         });
 
+        registerRoutes();
+
+        server.exception(IOException.class, (e, ctx) -> {
+            logger.error("IOException got caught", e);
+            ctx.status(500);
+        });
+
         server.start(config.host, config.port);
         logger.info("Web Server startet on http://{}:{}", config.host, config.port);
+
+        if (config.adminEnabled) {
+            logger.info("Admin interface can be found under http://{}:{}/{}", config.host, config.port, "admin");
+            logger.info("Currently set token is {}", config.adminToken);
+        }
     }
 
     public void stop() {
         server.stop();
         logger.info("Web Server stopped");
+    }
+
+    private void registerRoutes() {
+        server.get("/", null);
+        server.get("/browse", null);
+        server.get("/browse/*", null);
+        server.get("/download/*", null);
+        server.get("/raw/*", null);
+        server.get("/preview/*", null);
+
+        if (config.adminEnabled) {
+            // TODO: authentication stuff
+            server.before("/admin", null);
+            server.before("/admin/*", null);
+            server.before("/api/admin/*", null);
+
+            server.get("/admin", null);
+            server.get("/admin/browse", null);
+            server.get("/admin/browse/*", null);
+
+            server.post("/api/admin/upload", null);
+            server.post("/api/admin/mkdir", null);
+            server.post("/api/admin/delete", null);
+            server.post("/api/admin/move", null);
+        }
+
+        server.get("/api/list", null);
+        server.get("/api/list/*", null);
+        server.get("/api/info/*", null);
     }
 }
