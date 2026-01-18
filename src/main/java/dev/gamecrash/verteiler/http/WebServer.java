@@ -3,7 +3,9 @@ package dev.gamecrash.verteiler.http;
 import dev.gamecrash.verteiler.config.Configuration;
 import dev.gamecrash.verteiler.logging.Logger;
 import dev.gamecrash.verteiler.storage.FileStorage;
+import dev.gamecrash.verteiler.util.Json;
 import io.javalin.Javalin;
+import io.javalin.http.Context;
 
 import java.io.IOException;
 
@@ -28,9 +30,9 @@ public class WebServer {
 
         registerRoutes();
 
-        server.exception(IOException.class, (e, ctx) -> {
+        server.exception(Exception.class, (e, ctx) -> {
             logger.error("IOException got caught", e);
-            ctx.status(500);
+            jsonRes(ctx, 500, false, "Internal server error");
         });
 
         server.start(config.host, config.port);
@@ -74,5 +76,9 @@ public class WebServer {
         server.get("/api/list", null);
         server.get("/api/list/*", null);
         server.get("/api/info/*", null);
+    }
+
+    public static void jsonRes(Context ctx, int status, boolean success, String message) {
+        ctx.status(status).contentType("application/json").result(Json.object("success", success, "message", message));
     }
 }

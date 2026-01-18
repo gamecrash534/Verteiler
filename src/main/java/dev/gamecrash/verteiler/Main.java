@@ -44,8 +44,10 @@ public class Main {
                 server.stop();
                 logger.flushQueue();
             }));
-        } catch (IOException e) {
-            logger.error("Failed to start Verteiler", e);
+        } catch (Exception e) {
+            logger.error("Failed to start Verteiler: ", e);
+            logger.info("Shutting down");
+            logger.flushQueue();
             System.exit(1);
         }
     }
