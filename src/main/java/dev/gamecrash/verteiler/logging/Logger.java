@@ -151,6 +151,7 @@ public class Logger {
     }
 
     public void flushQueue() {
+        if (!logToFile) return;
         try {
             Files.write(logFile, String.join("\n", logFileQueue).getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
         } catch (IOException e) {
