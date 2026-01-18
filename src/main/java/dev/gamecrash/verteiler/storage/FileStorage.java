@@ -36,7 +36,7 @@ public class FileStorage {
                 try {
                     fileEntries.add(toFileEntry(entry));
                 } catch (IOException e) {
-                    logger.error("Could not read file entry at {}: ", e, entry);
+                    logger.error("Could not read file entry at {}", e, entry);
                 }
             });
         }
@@ -132,6 +132,26 @@ public class FileStorage {
                 })
                 .sum();
         }
+    }
+
+    public List<FileEntry> search(String pattern, String basePath, int maxResults) throws IOException {
+        Path base = resolvePath(basePath);
+        List<FileEntry> results = new ArrayList<>();
+        String lowerPattern = pattern.toLowerCase();
+
+        try (Stream<Path> walk = Files.walk(base)) {
+            walk.filter(p -> p.getFileName().toString().toLowerCase().contains(lowerPattern))
+                .limit(maxResults)
+                .forEach(p -> {
+                    try {
+                        results.add(toFileEntry(p));
+                    } catch (IOException e) {
+                        logger.error("Could not read file entry at {}", e, p);
+                    }
+                });
+        }
+
+        return results;
     }
 
     private Path resolvePath(@NotNull String relativePath) {
