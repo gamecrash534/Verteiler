@@ -1,12 +1,19 @@
 package dev.gamecrash.verteiler;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import dev.gamecrash.verteiler.logging.Logger;
 
 public class Main {
-    private static final Logger logger = LoggerFactory.getLogger(Main.class);
+    private static Logger logger;
 
     public static void main(String[] args) {
+        logger = Logger.getInstance();
+        logger.info("yay");
+        logger.warn("hm");
+        logger.error("bad");
 
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            logger.info("Shutting down...");
+            logger.flushQueue();
+        }));
     }
 }

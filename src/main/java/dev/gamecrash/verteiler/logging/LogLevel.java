@@ -1,0 +1,25 @@
+package dev.gamecrash.verteiler.logging;
+
+import static dev.gamecrash.verteiler.logging.Logger.*;
+
+public enum LogLevel {
+    INFO(BLUE, "INFO"),
+    WARN(ORANGE, "WARN"),
+    ERROR(RED, "ERROR");
+
+    private final String color;
+    private final String label;
+
+    LogLevel(String color, String label) {
+        this.color = color;
+        this.label = label;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+}
