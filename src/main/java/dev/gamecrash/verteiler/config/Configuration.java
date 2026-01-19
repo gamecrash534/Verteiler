@@ -38,6 +38,14 @@ public class Configuration {
     public final boolean dragDropUpload;
     public final boolean enablePreview;
 
+    // UI, Footer
+    public final boolean footerEnabled;
+    public final boolean showCredits;
+
+     // Security
+    public final boolean allowDirectoryListing;
+    public final String allowedExtensions;
+
     public Configuration(Path configPath) throws IOException {
         if (!Files.exists(configPath)) createDefaultConfig(configPath);
         toml = Toml.parse(configPath);
@@ -59,6 +67,12 @@ public class Configuration {
         showDates = getBoolean("ui.show_dates", true);
         dragDropUpload = getBoolean("ui.drag_drop_upload", true);
         enablePreview = getBoolean("ui.enable_preview", true);
+
+        footerEnabled = getBoolean("ui.footer.enabled", true);
+        showCredits = getBoolean("ui.footer.show_credits", true);
+
+        allowDirectoryListing = getBoolean("security.allow_directory_listing", true);
+        allowedExtensions = getString("allowed_extensions", "");
     }
 
     public static Configuration load(Path path) {

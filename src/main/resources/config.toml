@@ -19,3 +19,11 @@ show_file_sizes = true
 show_dates = true
 drag_drop_upload = true
 enable_preview = true
+
+[ui.footer]
+enabled = true
+show_credits = true
+
+[security]
+allow_directory_listing = true
+allowed_extensions = ""

@@ -1,0 +1,21 @@
+<div class="breadcrumb">{{breadcrumb}}</div>
+<div class="file-list">
+    {{#hasParent}}
+    <a href="{{parentUrl}}" class="file-item parent directory">
+        <span class="name">..</span>
+        <span class="size"></span>
+        <span class="date"></span>
+    </a>
+    {{/hasParent}}
+    {{#entries}}
+    <a href="{{href}}" class="file-item {{class}}">
+        <span class="name">{{name}}</span>
+        {{#showSize}}<span class="size">{{size}}</span>{{/showSize}}
+        {{#showDate}}<span class="date">{{date}}</span>{{/showDate}}
+    </a>
+    {{/entries}}
+    {{#empty}}
+    <div class="empty">empty directory</div>
+    {{/empty}}
+</div>
+

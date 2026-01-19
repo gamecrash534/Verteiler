@@ -1,6 +1,7 @@
 package dev.gamecrash.verteiler.http;
 
 import dev.gamecrash.verteiler.config.Configuration;
+import dev.gamecrash.verteiler.http.routes.FileRoutes;
 import dev.gamecrash.verteiler.logging.Logger;
 import dev.gamecrash.verteiler.storage.FileStorage;
 import dev.gamecrash.verteiler.util.Json;
@@ -50,9 +51,14 @@ public class WebServer {
     }
 
     private void registerRoutes() {
-        server.get("/", null);
-        server.get("/browse", null);
-        server.get("/browse/*", null);
+        FileRoutes fileRoutes = new FileRoutes(fileStorage, config);
+
+        server.get("/assets/css/style.css", ctx -> ctx.contentType("text/css").result(WebUI.getCSS()));
+
+        server.get("/", fileRoutes::index);
+        server.get("/browse", fileRoutes::browse);
+        server.get("/browse/*", fileRoutes::browse);
+        /*
         server.get("/download/*", null);
         server.get("/raw/*", null);
         server.get("/preview/*", null);
@@ -76,6 +82,7 @@ public class WebServer {
         server.get("/api/list", null);
         server.get("/api/list/*", null);
         server.get("/api/info/*", null);
+         */
     }
 
     public static void jsonRes(Context ctx, int status, boolean success, String message) {

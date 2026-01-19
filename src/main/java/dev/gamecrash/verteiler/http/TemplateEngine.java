@@ -30,6 +30,10 @@ public class TemplateEngine {
         return templateCache.computeIfAbsent(name, this::loadTemplate);
     }
 
+    public String getCSS() {
+        return staticFileCache.computeIfAbsent("web/static/css/style.css", key -> loadResource(key));
+    }
+
     public String render(String template, Map<String, Object> context) {
         return  renderString(getTemplate(template), context);
     }
@@ -97,5 +101,22 @@ public class TemplateEngine {
 
     private String loadTemplate(String name) {
         return loadResource("web/templates/" + name + ".html");
+    }
+
+    public static ContextBuilder context() {
+        return new ContextBuilder();
+    }
+
+    public static class ContextBuilder {
+        private final Map<String, Object> context = new HashMap<>();
+
+        public ContextBuilder put(String key, Object value) {
+            context.put(key, value);
+            return this;
+        }
+
+        public Map<String, Object> build() {
+            return context;
+        }
     }
 }
