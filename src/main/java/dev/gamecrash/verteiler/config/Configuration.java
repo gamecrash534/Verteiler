@@ -31,6 +31,13 @@ public class Configuration {
     public final boolean adminEnabled;
     public final String adminToken;
 
+    // UI
+    public final String title;
+    public final boolean showFileSizes;
+    public final boolean showDates;
+    public final boolean dragDropUpload;
+    public final boolean enablePreview;
+
     public Configuration(Path configPath) throws IOException {
         if (!Files.exists(configPath)) createDefaultConfig(configPath);
         toml = Toml.parse(configPath);
@@ -46,6 +53,12 @@ public class Configuration {
 
         adminEnabled = getBoolean("admin.enabled", true);
         adminToken = getString("admin.token", generateToken());
+
+        title = getString("ui.title", "Verteiler");
+        showFileSizes = getBoolean("ui.show_file_sizes", true);
+        showDates = getBoolean("ui.show_dates", true);
+        dragDropUpload = getBoolean("ui.drag_drop_upload", true);
+        enablePreview = getBoolean("ui.enable_preview", true);
     }
 
     public static Configuration load(Path path) {

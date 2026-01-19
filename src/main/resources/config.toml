@@ -12,3 +12,10 @@ log_directory = "./logs"
 [admin]
 enabled = true
 token = "%s"
+
+[ui]
+title = "Verteiler"
+show_file_sizes = true
+show_dates = true
+drag_drop_upload = true
+enable_preview = true
