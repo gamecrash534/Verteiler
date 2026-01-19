@@ -31,7 +31,11 @@ public class TemplateEngine {
     }
 
     public String getCSS() {
-        return staticFileCache.computeIfAbsent("web/static/css/style.css", key -> loadResource(key));
+        return staticFileCache.computeIfAbsent("web/static/css/style.css", this::loadResource);
+    }
+
+    public String getJS() {
+        return staticFileCache.computeIfAbsent("web/static/js/app.js", this::loadResource);
     }
 
     public String render(String template, Map<String, Object> context) {

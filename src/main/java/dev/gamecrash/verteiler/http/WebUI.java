@@ -25,14 +25,15 @@ public class WebUI {
             else if (config.enablePreview && MimeTypes.isPreviewable(entry.mimeType())) href = "/preview/" + entryPath;
             else href = "/download/" + entryPath;
 
-            Map<String, Object> items = new HashMap<>();
-            items.put("href", href);
-            items.put("class", entry.isDirectory() ? "directory" : "file");
-            items.put("name", escapeHtml(entry.name() + (entry.isDirectory() ? "/" : "")));
-            items.put("showSize", config.showFileSizes);
-            items.put("size", entry.getReadableSize());
-            items.put("showDate", config.showDates);
-            items.put("date", dateFormat.format(entry.lastModified()));
+            Map<String, Object> item = new HashMap<>();
+            item.put("href", href);
+            item.put("class", entry.isDirectory() ? "directory" : "file");
+            item.put("name", escapeHtml(entry.name() + (entry.isDirectory() ? "/" : "")));
+            item.put("showSize", config.showFileSizes);
+            item.put("size", entry.getReadableSize());
+            item.put("showDate", config.showDates);
+            item.put("date", dateFormat.format(entry.lastModified()));
+            entryList.add(item);
         }
 
         String content = engine.render("browse", TemplateEngine.context()
@@ -81,6 +82,10 @@ public class WebUI {
 
     public static String getCSS() {
         return engine.getCSS();
+    }
+
+    public static String getJS() {
+        return engine.getJS();
     }
 
     private static String getParentUrl(String path, String baseUrl) {

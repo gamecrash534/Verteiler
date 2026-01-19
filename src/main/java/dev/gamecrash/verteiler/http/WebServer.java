@@ -32,7 +32,7 @@ public class WebServer {
         registerRoutes();
 
         server.exception(Exception.class, (e, ctx) -> {
-            logger.error("IOException got caught", e);
+            logger.error("Exception got caught", e);
             jsonRes(ctx, 500, false, "Internal server error");
         });
 
@@ -54,6 +54,7 @@ public class WebServer {
         FileRoutes fileRoutes = new FileRoutes(fileStorage, config);
 
         server.get("/assets/css/style.css", ctx -> ctx.contentType("text/css").result(WebUI.getCSS()));
+        server.get("/assets/js/app.js", ctx -> ctx.contentType("text/javascript").result(WebUI.getJS()));
 
         server.get("/", fileRoutes::index);
         server.get("/browse", fileRoutes::browse);
