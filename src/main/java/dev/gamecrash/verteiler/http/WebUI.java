@@ -37,13 +37,13 @@ public class WebUI {
         }
 
         String content = engine.render("browse", TemplateEngine.context()
-                .put("breadcrumb", buildBreadcrumb(path, "/browse"))
-                .put("hasParent", !path.isEmpty())
-                .put("parentUrl", getParentUrl(path, "/browse"))
-                .put("entries", entryList)
-                .put("empty", entries.isEmpty())
-                .put("currentPath", path)
-                .build()
+            .put("breadcrumb", buildBreadcrumb(path, "/browse"))
+            .put("hasParent", !path.isEmpty())
+            .put("parentUrl", getParentUrl(path, "/browse"))
+            .put("entries", entryList)
+            .put("empty", entries.isEmpty())
+            .put("currentPath", path)
+            .build()
         );
 
         return renderLayout(config, path.isEmpty() ? "files" : path, content, null);
@@ -67,6 +67,23 @@ public class WebUI {
             .build());
 
         return renderLayout(config, entry.name(), content, null);
+    }
+
+    public static String loginPage(Configuration config) {
+        String content = engine.render("login", TemplateEngine.context().build());
+
+        return renderLayout(config, "Login", content, null);
+    }
+
+    public static String dashboard(Configuration config, long totalSize, long fileItems, long directoryItems) {
+        String content = engine.render("dashboard", TemplateEngine.context()
+            .put("totalSize", getReadableSize(totalSize))
+            .put("fileCount", fileItems)
+            .put("directoryCount", directoryItems)
+            .build()
+        );
+
+        return renderLayout(config, "admin", content, null);
     }
 
     public static String error404(Configuration config, String message) {
@@ -144,5 +161,12 @@ public class WebUI {
             .replace("'", "\\'")
             .replace("\"", "\\\"")
             .replace("\n", "\\n");
+    }
+
+    public static String getReadableSize(long size) {
+        if (size < 1024) return size + " B";
+        if (size < 1024 * 1024) return String.format("%.1f KiB", size / 1024.0);
+        if (size < 1024 * 1024 * 1024) return String.format("%.1f MiB", size / (1024.0 * 1024));
+        else return String.format("%.1f GiB", size / (1024.0 * 1024 * 1024));
     }
 }

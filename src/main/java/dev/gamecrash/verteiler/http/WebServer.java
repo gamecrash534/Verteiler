@@ -1,6 +1,7 @@
 package dev.gamecrash.verteiler.http;
 
 import dev.gamecrash.verteiler.config.Configuration;
+import dev.gamecrash.verteiler.http.routes.AdminRoutes;
 import dev.gamecrash.verteiler.http.routes.FileRoutes;
 import dev.gamecrash.verteiler.logging.Logger;
 import dev.gamecrash.verteiler.storage.FileStorage;
@@ -52,6 +53,7 @@ public class WebServer {
 
     private void registerRoutes() {
         FileRoutes fileRoutes = new FileRoutes(fileStorage, config);
+        AdminRoutes adminRoutes = new AdminRoutes(fileStorage, config);
 
         server.get("/assets/css/style.css", ctx -> ctx.contentType("text/css").result(WebUI.getCSS()));
         server.get("/assets/js/app.js", ctx -> ctx.contentType("text/javascript").result(WebUI.getJS()));
@@ -62,15 +64,15 @@ public class WebServer {
         server.get("/download/*", fileRoutes::download);
         server.get("/raw/*", fileRoutes::ram);
         server.get("/preview/*", fileRoutes::preview);
-        /*
 
         if (config.adminEnabled) {
             // TODO: authentication stuff
-            server.before("/admin", null);
-            server.before("/admin/*", null);
-            server.before("/api/admin/*", null);
+            server.before("/admin", adminRoutes::authenticate);
+            server.before("/admin/*", adminRoutes::authenticate);
+            server.before("/api/admin/*", adminRoutes::authenticate);
 
-            server.get("/admin", null);
+            server.get("/admin", adminRoutes::dashboard);
+        }/*
             server.get("/admin/browse", null);
             server.get("/admin/browse/*", null);
 
@@ -78,7 +80,6 @@ public class WebServer {
             server.post("/api/admin/mkdir", null);
             server.post("/api/admin/delete", null);
             server.post("/api/admin/move", null);
-        }
 
         server.get("/api/list", null);
         server.get("/api/list/*", null);

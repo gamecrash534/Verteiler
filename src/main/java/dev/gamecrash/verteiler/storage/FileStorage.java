@@ -1,5 +1,6 @@
 package dev.gamecrash.verteiler.storage;
 
+import com.sun.source.doctree.EscapeTree;
 import dev.gamecrash.verteiler.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 
@@ -152,6 +153,18 @@ public class FileStorage {
         }
 
         return results;
+    }
+
+    public long fileCount(String relativePath) throws IOException {
+        try (Stream<Path> stream = Files.find(resolvePath(relativePath), Integer.MAX_VALUE, (path, attr) -> attr.isRegularFile())) {
+            return stream.count();
+        }
+    }
+
+    public long directoryCount(String relativePath) throws IOException {
+        try (Stream<Path> stream = Files.find(resolvePath(relativePath), Integer.MAX_VALUE, (path, attr) -> attr.isDirectory())) {
+            return stream.count();
+        }
     }
 
     private Path resolvePath(@NotNull String relativePath) {
