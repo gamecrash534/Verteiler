@@ -150,6 +150,7 @@ public class FileRoutes {
     }
 
     private boolean isAdmin(Context ctx) {
+        if (!config.adminEnabled) return false;
         String cookie = ctx.cookie("admin_token");
         return cookie != null && cookie.equals(config.adminToken);
     }

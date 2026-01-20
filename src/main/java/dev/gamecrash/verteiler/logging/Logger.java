@@ -59,7 +59,7 @@ public class Logger {
             logFileQueue.clear();
         }
 
-        logLevel = LogLevel.valueOf(config.logLevel);
+        logLevel = LogLevel.getValue(config.logLevel);
     }
 
     private String getCallerInfo() {

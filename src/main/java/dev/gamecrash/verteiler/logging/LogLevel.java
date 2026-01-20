@@ -22,4 +22,12 @@ public enum LogLevel {
     public String getLabel() {
         return label;
     }
+
+    public static LogLevel getValue(String string) {
+        try {
+            return LogLevel.valueOf(string);
+        } catch (IllegalArgumentException e) {
+            return LogLevel.INFO;
+        }
+    }
 }
