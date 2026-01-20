@@ -122,7 +122,7 @@ public class FileRoutes {
 
         String rangeHeader = ctx.header("Range");
         if (rangeHeader != null && rangeHeader.startsWith("bytes=")) handleRangeRequest(ctx, filePath, entry.size(), rangeHeader);
-        else ctx.result(Files.readAllBytes(filePath));
+        else ctx.result(Files.newInputStream(filePath));
     }
 
     private void handleRangeRequest(Context ctx, Path filePath, long fileSize, String rangeHeader) throws IOException {
