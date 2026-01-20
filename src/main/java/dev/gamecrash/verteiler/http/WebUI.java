@@ -76,7 +76,7 @@ public class WebUI {
     }
 
     public static String dashboard(Configuration config, long totalSize, long fileItems, long directoryItems) {
-        String content = engine.render("dashboard", TemplateEngine.context()
+        String content = engine.render("admin-dashboard", TemplateEngine.context()
             .put("totalSize", getReadableSize(totalSize))
             .put("fileCount", fileItems)
             .put("directoryCount", directoryItems)
@@ -84,6 +84,41 @@ public class WebUI {
         );
 
         return renderLayout(config, "admin", content, true, null);
+    }
+
+    public static String adminBrowse(Configuration config, String path, List<FileEntry> entries) {
+        String baseUrl = "/admin/browse";
+
+        List<Map<String, Object>> entryList = new ArrayList<>();
+        for (FileEntry entry : entries) {
+            String entryPath = path.isEmpty() ? entry.name() : path + "/" + entry.name();
+            String href = entry.isDirectory() ? baseUrl + "/" + entryPath : "/download/" + entryPath;
+
+            Map<String, Object> item = new HashMap<>();
+            item.put("href", href);
+            item.put("class", entry.isDirectory() ? "directory" : "file");
+            item.put("name", escapeHtml(entry.name()) + (entry.isDirectory() ? "/" : ""));
+            item.put("path", escapeJs(entryPath));
+            item.put("showSize", config.showFileSizes);
+            item.put("size", entry.isDirectory() ? "" : entry.getReadableSize());
+            item.put("showDate", config.showDates);
+            item.put("date", dateFormat.format(entry.lastModified()));
+            entryList.add(item);
+        }
+
+        String content = engine.render("admin-browse", TemplateEngine.context()
+            .put("breadcrumb", buildBreadcrumb(path, baseUrl))
+            .put("hasParent", !path.isEmpty())
+            .put("parentUrl", getParentUrl(path, baseUrl))
+            .put("entries", entryList)
+            .put("empty", entries.isEmpty())
+            .put("currentPath", path)
+            .build());
+
+        // TODO: find better solution
+        String scripts = "const ADMIN_TOKEN = '" + config.adminToken + "';const CURRENT_PATH = '" + escapeJs(path) + "';";
+
+        return renderLayout(config, "admin - files", content, true, scripts);
     }
 
     public static String error404(Configuration config, String message, boolean isAdmin) {

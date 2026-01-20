@@ -309,6 +309,7 @@ h1 {
 .btn.primary:hover {
     background: var(--accent-hover);
     border-color: var(--accent-hover);
+    color: var(--bg);
 }
 
 .error {
@@ -404,10 +405,149 @@ input:focus {
     flex-wrap: wrap;
 }
 
+.toolbar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.admin-list .file-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto auto;
+    gap: 1rem;
+    align-items: center;
+}
+
+.admin-list .file-item > a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.admin-list .file-item > a .name {
+    color: var(--accent);
+}
+
+.admin-list .file-item.directory > a .name {
+    color: var(--text);
+}
+
+.actions {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 3px;
+    opacity: 0.5;
+    transition: opacity 0.15s;
+    color: var(--text);
+}
+
+.actions button svg {
+    width: 14px;
+    height: 14px;
+}
+
+.actions button:hover {
+    opacity: 1;
+    background: var(--bg-hover);
+}
+
+.actions button.danger:hover {
+    background: rgba(248, 81, 73, 0.15);
+    color: var(--red);
+}
+
+.empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.5rem;
+    max-width: 450px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-content h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+}
+
+.drop-zone {
+    border: 1px dashed var(--border);
+    border-radius: 4px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.15s;
+}
+
+.drop-zone:hover, .drop-zone.dragover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.drop-zone input {
+    display: none;
+}
+
+.file-preview {
+    margin-top: 1rem;
+}
+
+.file-preview-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.4rem 0;
+    font-size: 0.85rem;
+    border-bottom: 1px solid var(--border);
+}
 
 @media (max-width: 600px) {
     .file-item .date {
         display: none;
+    }
+
+    .admin-list .file-item {
+        grid-template-columns: auto 1fr auto auto;
     }
 
     .stats {

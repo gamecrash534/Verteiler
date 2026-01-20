@@ -72,9 +72,9 @@ public class WebServer {
             server.before("/api/admin/*", adminRoutes::authenticate);
 
             server.get("/admin", adminRoutes::dashboard);
+            server.get("/admin/browse", adminRoutes::browse);
+            server.get("/admin/browse/*", adminRoutes::browse);
         }/*
-            server.get("/admin/browse", null);
-            server.get("/admin/browse/*", null);
 
             server.post("/api/admin/upload", null);
             server.post("/api/admin/mkdir", null);
