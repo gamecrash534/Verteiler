@@ -16,7 +16,7 @@ public class WebUI {
     private static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm").withZone(ZoneId.systemDefault());
     private static final TemplateEngine engine = TemplateEngine.getInstance();
 
-    public static String browseDirectory(Configuration config, String path, List<FileEntry> entries) {
+    public static String browseDirectory(Configuration config, String path, List<FileEntry> entries, boolean isAdmin) {
         List<Map<String, Object>> entryList = new ArrayList<>();
         for (FileEntry entry : entries) {
             String entryPath = path.isEmpty() ? entry.name() : path + "/" + entry.name();
@@ -46,10 +46,10 @@ public class WebUI {
             .build()
         );
 
-        return renderLayout(config, path.isEmpty() ? "files" : path, content, null);
+        return renderLayout(config, path.isEmpty() ? "files" : path, content, isAdmin, null);
     }
 
-    public static String previewFile(Configuration config, FileEntry entry, String path) {
+    public static String previewFile(Configuration config, FileEntry entry, String path, boolean isAdmin) {
         String mimeType = entry.mimeType();
         String previewType = MimeTypes.getPreviewType(mimeType);
 
@@ -66,13 +66,13 @@ public class WebUI {
             .put("isText", previewType.equals("text"))
             .build());
 
-        return renderLayout(config, entry.name(), content, null);
+        return renderLayout(config, entry.name(), content, isAdmin, null);
     }
 
     public static String loginPage(Configuration config) {
         String content = engine.render("login", TemplateEngine.context().build());
 
-        return renderLayout(config, "Login", content, null);
+        return renderLayout(config, "Login", content, false, null);
     }
 
     public static String dashboard(Configuration config, long totalSize, long fileItems, long directoryItems) {
@@ -83,25 +83,25 @@ public class WebUI {
             .build()
         );
 
-        return renderLayout(config, "admin", content, null);
+        return renderLayout(config, "admin", content, true, null);
     }
 
-    public static String error404(Configuration config, String message) {
-        return renderError(config, "404", message);
+    public static String error404(Configuration config, String message, boolean isAdmin) {
+        return renderError(config, "404", message, isAdmin);
     }
 
-    private static String renderError(Configuration config, String code, String message) {
+    private static String renderError(Configuration config, String code, String message, boolean isAdmin) {
         String content = engine.render("error", TemplateEngine.context()
                 .put("code", code)
                 .put("message", escapeHtml(message))
                 .build()
         );
 
-        return renderLayout(config, code, content, null);
+        return renderLayout(config, code, content, isAdmin, null);
     }
 
 
-    private static String renderLayout(Configuration config, String title, String content, @Nullable String scripts) {
+    private static String renderLayout(Configuration config, String title, String content, boolean isAdmin, @Nullable String scripts) {
         return engine.render("layout", TemplateEngine.context()
             .put("title", title)
             .put("appName", config.title)
@@ -109,6 +109,8 @@ public class WebUI {
             .put("scripts", scripts)
             .put("showFooter", config.footerEnabled)
             .put("showCredits", config.showCredits)
+            .put("isAdmin", isAdmin)
+            .put(title.contains("admin") ? "isOnAdmin" : "isBrowsing", true)
             .build());
     }
 

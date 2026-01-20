@@ -7,9 +7,7 @@ import dev.gamecrash.verteiler.storage.FileEntry;
 import dev.gamecrash.verteiler.storage.FileStorage;
 import io.javalin.http.Context;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -35,7 +33,7 @@ public class FileRoutes {
 
         String path = getPathFromContext(ctx, "/browse");
         if (!fileStorage.exists(path)) {
-            ctx.status(404).html(WebUI.error404(config, "Not Found: " + path));
+            ctx.status(404).html(WebUI.error404(config, "Not Found: " + path, isAdmin(ctx)));
             return;
         }
 
@@ -45,7 +43,8 @@ public class FileRoutes {
         }
 
         List<FileEntry> entries = fileStorage.list(path);
-        ctx.html(WebUI.browseDirectory(config, path, entries));
+
+        ctx.html(WebUI.browseDirectory(config, path, entries, isAdmin(ctx)));
     }
 
     public void download(Context ctx) throws IOException {
@@ -81,13 +80,14 @@ public class FileRoutes {
 
     public void preview(Context ctx) throws IOException {
         String path = getPathFromContext(ctx, "/preview");
+        boolean isAdmin = isAdmin(ctx);
         if (!config.enablePreview) {
             ctx.redirect("/download/" + path);
             return;
         }
 
         if (!fileStorage.exists(path)) {
-            ctx.status(404).html(WebUI.error404(config, "Not Found: " + path));
+            ctx.status(404).html(WebUI.error404(config, "Not Found: " + path, isAdmin));
             return;
         }
 
@@ -98,11 +98,11 @@ public class FileRoutes {
 
         FileEntry entry = fileStorage.get(path);
         if (entry == null) {
-            ctx.status(404).html(WebUI.error404(config, "Not Found: " +  path));
+            ctx.status(404).html(WebUI.error404(config, "Not Found: " +  path, isAdmin));
             return;
         }
 
-        ctx.html(WebUI.previewFile(config, entry, path));
+        ctx.html(WebUI.previewFile(config, entry, path, isAdmin));
     }
 
     private void serveFile(Context ctx, String path, boolean asDownload) throws IOException {
@@ -147,6 +147,11 @@ public class FileRoutes {
         byte[] rangeBytes = new byte[(int) length];
         System.arraycopy(allBytes, (int) start, rangeBytes, 0, (int) length);
         ctx.result(rangeBytes);
+    }
+
+    private boolean isAdmin(Context ctx) {
+        String cookie = ctx.cookie("admin_token");
+        return cookie != null && cookie.equals(config.adminToken);
     }
 
     private String getPathFromContext(Context ctx, String prefix) {

@@ -11,7 +11,8 @@
             <nav>
                 <a href="/" class="logo">{{appName}}</a>
                 <div class="nav-links">
-                    <a href="/browse" class="active">[files]</a>
+                    <a href="/browse" {{#isBrowsing}} class="active" {{/isBrowsing}} >[files]</a>
+                    {{#isAdmin}}<a href="/admin" {{#isOnAdmin}} class="active" {{/isOnAdmin}} >[admin]</a>{{/isAdmin}}
                 </div>
             </nav>
         </header>
