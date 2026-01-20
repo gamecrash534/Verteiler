@@ -1,0 +1,60 @@
+<div class="preview-container">
+    <div class="preview-header">
+        <h1>{{fileName}}</h1>
+        <div class="preview-actions">
+            <a href="/download/{{filePath}}" class="btn">[download]</a>
+            <a href="/raw/{{filePath}}" class="btn" target="_blank">[open raw]</a>
+        </div>
+    </div>
+
+    <div class="preview-info">
+        <span class="size">{{fileSize}}</span>
+        <span class="type">{{mimeType}}</span>
+    </div>
+
+    <div class="preview-content">
+        {{#isImage}}
+        <img src="/raw/{{filePath}}" alt="{{fileName}}" loading="lazy">
+        {{/isImage}}
+
+        {{#isVideo}}
+        <video controls preload="metadata">
+            <source src="/raw/{{filePath}}" type="{{mimeType}}">
+            Your browser does not support video playback.
+        </video>
+        {{/isVideo}}
+
+        {{#isAudio}}
+        <audio controls preload="metadata">
+            <source src="/raw/{{filePath}}" type="{{mimeType}}">
+            Your browser does not support audio playback.
+        </audio>
+        {{/isAudio}}
+
+        {{#isPdf}}
+        <iframe src="/raw/{{filePath}}" type="application/pdf"></iframe>
+        {{/isPdf}}
+
+        {{#isText}}
+        <pre class="text-preview" id="textContent">Loading...</pre>
+        <script>
+            fetch('/raw/{{filePath}}')
+                .then(r => r.text())
+                .then(text => {
+                    document.getElementById('textContent').textContent = text;
+                })
+                .catch(err => {
+                    document.getElementById('textContent').textContent = 'Error loading file: ' + err.message;
+                });
+        </script>
+        {{/isText}}
+
+        {{#notPreviewable}}
+        <div class="no-preview">
+            <p>Preview not available for this file type.</p>
+            <a href="/download/{{filePath}}" class="btn primary">{{iconDownload}} Download file</a>
+        </div>
+        {{/notPreviewable}}
+    </div>
+</div>
+

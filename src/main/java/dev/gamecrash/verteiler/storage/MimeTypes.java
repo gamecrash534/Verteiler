@@ -108,7 +108,7 @@ public class MimeTypes {
         if (isVideo(mimeType)) return "video";
         if (isAudio(mimeType)) return "audio";
         if (mimeType.equals("application/pdf")) return "pdf";
-        return null;
+        return "";
     }
 
     public static boolean isText(String mimeType) {

@@ -46,6 +46,10 @@ public class Configuration {
     public final boolean allowDirectoryListing;
     public final String allowedExtensions;
 
+    // Caching
+    public final boolean enableCaching;
+    public final int cacheMaxAge;
+
     public Configuration(Path configPath) throws IOException {
         if (!Files.exists(configPath)) createDefaultConfig(configPath);
         toml = Toml.parse(configPath);
@@ -73,6 +77,9 @@ public class Configuration {
 
         allowDirectoryListing = getBoolean("security.allow_directory_listing", true);
         allowedExtensions = getString("allowed_extensions", "");
+
+        enableCaching = getBoolean("performance.enable_caching", true);
+        cacheMaxAge = getInt("performance.cache_max_age", 3600);
     }
 
     public static Configuration load(Path path) {

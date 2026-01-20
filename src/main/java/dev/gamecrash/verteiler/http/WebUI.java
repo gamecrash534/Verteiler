@@ -49,6 +49,27 @@ public class WebUI {
         return renderLayout(config, path.isEmpty() ? "files" : path, content, null);
     }
 
+    public static String previewFile(Configuration config, FileEntry entry, String path) {
+        String mimeType = entry.mimeType();
+        String previewType = MimeTypes.getPreviewType(mimeType);
+
+        String content = engine.render("preview", TemplateEngine.context()
+            .put("fileName", escapeHtml(entry.name()))
+            .put("filePath", path)
+            .put("fileSize", entry.getReadableSize())
+            .put("mimeType", mimeType.equals("-") ? "folder" : mimeType)
+            .put("notPreviewable", previewType.isEmpty())
+            .put("isImage", previewType.equals("image"))
+            .put("isVideo", previewType.equals("video"))
+            .put("isAudio", previewType.equals("audio"))
+            .put("isPdf", previewType.equals("pdf"))
+            .put("isText", previewType.equals("text"))
+            .build());
+
+        return renderLayout(config, entry.name(), content, null);
+    }
+
+
     private static String renderLayout(Configuration config, String title, String content, @Nullable String scripts) {
         return engine.render("layout", TemplateEngine.context()
             .put("title", title)

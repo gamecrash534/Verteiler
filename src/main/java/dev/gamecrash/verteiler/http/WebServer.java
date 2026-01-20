@@ -59,10 +59,10 @@ public class WebServer {
         server.get("/", fileRoutes::index);
         server.get("/browse", fileRoutes::browse);
         server.get("/browse/*", fileRoutes::browse);
+        server.get("/download/*", fileRoutes::download);
+        server.get("/raw/*", fileRoutes::ram);
+        server.get("/preview/*", fileRoutes::preview);
         /*
-        server.get("/download/*", null);
-        server.get("/raw/*", null);
-        server.get("/preview/*", null);
 
         if (config.adminEnabled) {
             // TODO: authentication stuff
