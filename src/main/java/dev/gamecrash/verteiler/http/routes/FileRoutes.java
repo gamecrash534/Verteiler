@@ -27,7 +27,7 @@ public class FileRoutes {
 
     public void browse(Context ctx) throws IOException {
         if (!config.allowDirectoryListing) {
-            ctx.status(403).result("Directory listing is disabled");
+            ctx.status(403).html(WebUI.error403(config, "Directory listing is disabled", isAdmin(ctx)));
             return;
         }
 

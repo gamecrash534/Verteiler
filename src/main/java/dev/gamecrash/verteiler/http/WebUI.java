@@ -125,6 +125,10 @@ public class WebUI {
         return renderError(config, "404", message, isAdmin);
     }
 
+    public static String error403(Configuration config, String message, boolean isAdmin) {
+        return renderError(config, "403", message, isAdmin);
+    }
+
     private static String renderError(Configuration config, String code, String message, boolean isAdmin) {
         String content = engine.render("error", TemplateEngine.context()
                 .put("code", code)
