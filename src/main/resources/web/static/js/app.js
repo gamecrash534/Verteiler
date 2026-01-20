@@ -1,3 +1,11 @@
+let token = "";
+let currentPath = "";
+
+function getToken() {
+    const cookies = `; ${document.cookie}`;
+    token = cookies.split("; ").find(val => val.startsWith("admin_token")).substring("admin_token=".length, cookies.length - 1);
+}
+
 function showUploadModal() {
     document.getElementById('uploadModal').classList.add('active');
 }
@@ -48,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function () {
             e.preventDefault();
             const formData = new FormData(uploadForm);
             try {
-                const res = await fetch('/api/admin/upload?token=' + ADMIN_TOKEN, {method: 'POST', body: formData});
+                const res = await fetch('/api/admin/upload?token=' + token, {method: 'POST', body: formData});
                 const data = await res.json();
                 if (data.success) location.reload();
                 else alert(data.message);
@@ -65,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const name = mkdirForm.querySelector('input[name="name"]').value;
             const path = CURRENT_PATH ? CURRENT_PATH + '/' + name : name;
             try {
-                const res = await fetch('/api/admin/mkdir?token=' + ADMIN_TOKEN, {
+                const res = await fetch('/api/admin/mkdir?token=' + token, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                     body: 'path=' + encodeURIComponent(path)
@@ -84,12 +92,14 @@ document.addEventListener('DOMContentLoaded', function () {
             if (e.target === modal) closeModal(modal.id);
         });
     });
+
+    getToken();
 });
 
 async function deleteItem(path) {
     if (!confirm('Delete ' + path + '?')) return;
     try {
-        const res = await fetch('/api/admin/delete?token=' + ADMIN_TOKEN, {
+        const res = await fetch('/api/admin/delete?token=' + token, {
             method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             body: 'path=' + encodeURIComponent(path)
@@ -110,7 +120,7 @@ async function renameItem(path) {
     const dir = path.substring(0, path.length - name.length);
     const newPath = dir + newName;
     try {
-        const res = await fetch('/api/admin/move?token=' + ADMIN_TOKEN, {
+        const res = await fetch('/api/admin/move?token=' + token, {
             method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             body: 'from=' + encodeURIComponent(path) + '&to=' + encodeURIComponent(newPath)

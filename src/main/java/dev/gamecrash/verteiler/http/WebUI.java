@@ -116,7 +116,7 @@ public class WebUI {
             .build());
 
         // TODO: find better solution
-        String scripts = "const ADMIN_TOKEN = '" + config.adminToken + "';const CURRENT_PATH = '" + escapeJs(path) + "';";
+        String scripts = "';const CURRENT_PATH = '" + escapeJs(path) + "';";
 
         return renderLayout(config, "admin - files", content, true, scripts);
     }
