@@ -69,6 +69,20 @@ public class WebUI {
         return renderLayout(config, entry.name(), content, null);
     }
 
+    public static String error404(Configuration config, String message) {
+        return renderError(config, "404", message);
+    }
+
+    private static String renderError(Configuration config, String code, String message) {
+        String content = engine.render("error", TemplateEngine.context()
+                .put("code", code)
+                .put("message", escapeHtml(message))
+                .build()
+        );
+
+        return renderLayout(config, code, content, null);
+    }
+
 
     private static String renderLayout(Configuration config, String title, String content, @Nullable String scripts) {
         return engine.render("layout", TemplateEngine.context()

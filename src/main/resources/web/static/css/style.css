@@ -278,6 +278,55 @@ h1 {
     margin-bottom: 1.5rem;
 }
 
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: var(--mono), "serif";
+    font-size: 0.8rem;
+    text-decoration: none;
+    transition: all 0.15s;
+}
+
+.btn.primary {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+}
+
+.btn:hover {
+    color: var(--text);
+    border-color: var(--text-muted);
+    text-decoration: none;
+}
+
+.btn.primary:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+}
+
+.error {
+    text-align: center;
+    padding: 4rem 1rem;
+}
+
+.error h1 {
+    font-size: 3rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.error p {
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+}
+
 @media (max-width: 600px) {
     .file-item .date {
         display: none;

@@ -35,7 +35,7 @@ public class FileRoutes {
 
         String path = getPathFromContext(ctx, "/browse");
         if (!fileStorage.exists(path)) {
-            ctx.status(404).result("path not found");
+            ctx.status(404).html(WebUI.error404(config, "Not Found: " + path));
             return;
         }
 
@@ -87,7 +87,7 @@ public class FileRoutes {
         }
 
         if (!fileStorage.exists(path)) {
-            WebServer.jsonRes(ctx, 404, false, "path not found");
+            ctx.status(404).html(WebUI.error404(config, "Not Found: " + path));
             return;
         }
 
@@ -98,7 +98,7 @@ public class FileRoutes {
 
         FileEntry entry = fileStorage.get(path);
         if (entry == null) {
-            ctx.status(404);
+            ctx.status(404).html(WebUI.error404(config, "Not Found: " +  path));
             return;
         }
 
