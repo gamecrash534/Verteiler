@@ -74,12 +74,12 @@ public class WebServer {
             server.get("/admin", adminRoutes::dashboard);
             server.get("/admin/browse", adminRoutes::browse);
             server.get("/admin/browse/*", adminRoutes::browse);
-        }/*
 
-            server.post("/api/admin/upload", null);
-            server.post("/api/admin/mkdir", null);
-            server.post("/api/admin/delete", null);
-            server.post("/api/admin/move", null);
+            server.post("/api/admin/upload", adminRoutes::upload);
+            server.post("/api/admin/mkdir", adminRoutes::mkdir);
+            server.post("/api/admin/delete", adminRoutes::delete);
+            server.post("/api/admin/move", adminRoutes::move);
+        }/*
 
         server.get("/api/list", null);
         server.get("/api/list/*", null);

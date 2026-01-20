@@ -44,7 +44,7 @@ public class Configuration {
 
      // Security
     public final boolean allowDirectoryListing;
-    public final String allowedExtensions;
+    public final String[] allowedExtensions;
 
     // Caching
     public final boolean enableCaching;
@@ -76,7 +76,8 @@ public class Configuration {
         showCredits = getBoolean("ui.footer.show_credits", true);
 
         allowDirectoryListing = getBoolean("security.allow_directory_listing", true);
-        allowedExtensions = getString("allowed_extensions", "");
+        String extensions = getString("security.allowed_extensions", "");
+        this.allowedExtensions = extensions.isEmpty() ? new String[0] : extensions.split(",");
 
         enableCaching = getBoolean("performance.enable_caching", true);
         cacheMaxAge = getInt("performance.cache_max_age", 3600);

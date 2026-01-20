@@ -1,7 +1,7 @@
 <div class="breadcrumb">{{breadcrumb}}</div>
 <div class="toolbar">
-    <button onclick="" class="btn primary">upload</button>
-    <button onclick="" class="btn">folder</button>
+    <button onclick="showUploadModal()" class="btn primary">upload</button>
+    <button onclick="showMkdirModal()" class="btn">folder</button>
 </div>
 <div class="file-list admin-list">
     {{#hasParent}}
@@ -19,8 +19,8 @@
         {{#showSize}}<span class="size">{{size}}</span>{{/showSize}}
         {{#showDate}}<span class="date">{{date}}</span>{{/showDate}}
         <div class="actions">
-            <button onclick="" title="rename">[rename]</button>
-            <button onclick="" title="delete" class="danger">[delete]</button>
+            <button onclick="renameItem('{{path}}')" title="rename">[rename]</button>
+            <button onclick="deleteItem('{{path}}')" title="delete" class="danger">[delete]</button>
         </div>
     </div>
     {{/entries}}
@@ -41,7 +41,7 @@
             </div>
             <div id="fileList" class="file-preview"></div>
             <div class="modal-actions">
-                <button type="button" onclick="" class="btn">cancel</button>
+                <button type="button" onclick="closeModal('uploadModal')" class="btn">cancel</button>
                 <button type="submit" class="btn primary">upload</button>
             </div>
         </form>
@@ -55,7 +55,7 @@
         <form id="mkdirForm">
             <input type="text" name="name" placeholder="folder name" required>
             <div class="modal-actions">
-                <button type="button" onclick="" class="btn">cancel</button>
+                <button type="button" onclick="closeModal('mkdirModal')" class="btn">cancel</button>
                 <button type="submit" class="btn primary">create</button>
             </div>
         </form>
