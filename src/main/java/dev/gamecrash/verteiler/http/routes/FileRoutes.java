@@ -92,7 +92,7 @@ public class FileRoutes {
         }
 
         if (fileStorage.isDirectory(path)) {
-            WebServer.jsonRes(ctx, 400, false, "how do you want to preview this directory?");
+            ctx.redirect("/browse/" + path);
             return;
         }
 

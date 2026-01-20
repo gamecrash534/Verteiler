@@ -282,4 +282,10 @@ h1 {
     .file-item .date {
         display: none;
     }
+
+    .preview-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
 }
