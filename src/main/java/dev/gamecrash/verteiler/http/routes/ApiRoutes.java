@@ -2,6 +2,7 @@ package dev.gamecrash.verteiler.http.routes;
 
 import dev.gamecrash.verteiler.config.Configuration;
 import dev.gamecrash.verteiler.http.WebServer;
+import dev.gamecrash.verteiler.logging.Logger;
 import dev.gamecrash.verteiler.storage.FileEntry;
 import dev.gamecrash.verteiler.storage.FileStorage;
 import dev.gamecrash.verteiler.util.Json;
@@ -39,16 +40,21 @@ public class ApiRoutes {
         }
 
         List<FileEntry> entries = fileStorage.list(path);
+        if (entries.isEmpty()) {
+            ctx.contentType("application/json")
+                .result(Json.object("success", true, "data", "empty"));
+            return;
+        }
         Object[] entryObjects = entries.stream()
-            .map(e -> Map.of(
-                "name", e.name(),
-                "path", e.path(),
-                "isDirectory", e.isDirectory(),
-                "size", e.size(),
-                "lastModified", e.lastModified().toString(),
-                "mimeType", e.mimeType() != null ? e.mimeType() : ""
-            ))
-            .toArray();
+                .map(e -> Map.of(
+                    "name", e.name(),
+                    "path", e.path(),
+                    "isDirectory", e.isDirectory(),
+                    "size", e.size(),
+                    "lastModified", e.lastModified().toString(),
+                    "mimeType", e.mimeType() != null ? e.mimeType() : ""
+                ))
+                .toArray();
 
         ctx.contentType("application/json")
             .result(Json.object("success", true, "data", Map.of("path", path, "entries", entryObjects)));
