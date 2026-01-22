@@ -173,7 +173,10 @@ public class FileStorage {
         String normalizedPath = relativePath.replace("\\", "/");
         if (normalizedPath.startsWith("/")) normalizedPath = normalizedPath.substring(1);
 
-        return rootPath.resolve(normalizedPath).normalize();
+        Path resolved = rootPath.resolve(normalizedPath).normalize();
+        if (!resolved.startsWith(rootPath)) throw new SecurityException("path traversal :'( " + relativePath);
+
+        return resolved;
     }
 
     private FileEntry toFileEntry(Path path) throws IOException {
