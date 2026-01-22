@@ -38,6 +38,10 @@ public class TemplateEngine {
         return staticFileCache.computeIfAbsent("web/static/js/app.js", this::loadResource);
     }
 
+    public String getIcon(String name) {
+        return staticFileCache.computeIfAbsent(name, this::loadIcon);
+    }
+
     public String render(String template, Map<String, Object> context) {
         return  renderString(getTemplate(template), context);
     }
@@ -105,6 +109,10 @@ public class TemplateEngine {
 
     private String loadTemplate(String name) {
         return loadResource("web/templates/" + name + ".html");
+    }
+
+    private String loadIcon(String name) {
+        return loadResource("web/static/icons/" + name + ".svg");
     }
 
     public static ContextBuilder context() {

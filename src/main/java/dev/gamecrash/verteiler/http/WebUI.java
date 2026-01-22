@@ -28,6 +28,7 @@ public class WebUI {
             Map<String, Object> item = new HashMap<>();
             item.put("href", href);
             item.put("class", entry.isDirectory() ? "directory" : "file");
+            item.put("icon", getFileIcon(entry.isDirectory() ? null : entry.mimeType(), entry.isDirectory()));
             item.put("name", escapeHtml(entry.name() + (entry.isDirectory() ? "/" : "")));
             item.put("showSize", config.showFileSizes);
             item.put("size", entry.getReadableSize());
@@ -151,6 +152,18 @@ public class WebUI {
             .put("isAdmin", isAdmin)
             .put(title.contains("admin") ? "isOnAdmin" : "isBrowsing", true)
             .build());
+    }
+
+    private static String getFileIcon(String mimeType, boolean isDirectory) {
+        if (isDirectory) return engine.getIcon("folder");
+        if (mimeType == null) return engine.getIcon("file");
+        if (mimeType.startsWith("image/")) return engine.getIcon("image");
+        if (mimeType.startsWith("video/")) return engine.getIcon("video");
+        if (mimeType.startsWith("audio/")) return engine.getIcon("audio");
+        if (mimeType.startsWith("text/")) return engine.getIcon("text");
+        if (mimeType.contains("zip") || mimeType.contains("tar") || mimeType.contains("compress")) return engine.getIcon("archive");
+
+        return engine.getIcon("file");
     }
 
     private static String buildBreadcrumb(String path, String baseUrl) {
