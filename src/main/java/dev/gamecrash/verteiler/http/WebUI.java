@@ -44,6 +44,7 @@ public class WebUI {
             .put("entries", entryList)
             .put("empty", entries.isEmpty())
             .put("currentPath", path)
+            .put("upIcon", engine.getIcon("up"))
             .build()
         );
 
@@ -65,6 +66,8 @@ public class WebUI {
             .put("isAudio", previewType.equals("audio"))
             .put("isPdf", previewType.equals("pdf"))
             .put("isText", previewType.equals("text"))
+            .put("downloadIcon", engine.getIcon("download"))
+            .put("externalIcon", engine.getIcon("external"))
             .build());
 
         return renderLayout(config, entry.name(), content, isAdmin, null);
@@ -81,6 +84,7 @@ public class WebUI {
             .put("totalSize", getReadableSize(totalSize))
             .put("fileCount", fileItems)
             .put("directoryCount", directoryItems)
+            .put("folderIcon", engine.getIcon("folder"))
             .build()
         );
 
@@ -98,6 +102,7 @@ public class WebUI {
             Map<String, Object> item = new HashMap<>();
             item.put("href", href);
             item.put("class", entry.isDirectory() ? "directory" : "file");
+            item.put("icon", getFileIcon(entry.isDirectory() ? null : entry.mimeType(), entry.isDirectory()));
             item.put("name", escapeHtml(entry.name()) + (entry.isDirectory() ? "/" : ""));
             item.put("path", escapeJs(entryPath));
             item.put("showSize", config.showFileSizes);
@@ -114,10 +119,14 @@ public class WebUI {
             .put("entries", entryList)
             .put("empty", entries.isEmpty())
             .put("currentPath", path)
+            .put("uploadIcon", engine.getIcon("upload"))
+            .put("mkdirIcon", engine.getIcon("mkdir"))
+            .put("editIcon", engine.getIcon("edit"))
+            .put("trashIcon", engine.getIcon("trash"))
             .build());
 
         // TODO: find better solution
-        String scripts = "';const CURRENT_PATH = '" + escapeJs(path) + "';";
+        String scripts = "const CURRENT_PATH = '" + escapeJs(path) + "';";
 
         return renderLayout(config, "admin - files", content, true, scripts);
     }

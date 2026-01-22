@@ -1,12 +1,13 @@
 <div class="breadcrumb">{{breadcrumb}}</div>
 <div class="toolbar">
-    <button onclick="showUploadModal()" class="btn primary">upload</button>
-    <button onclick="showMkdirModal()" class="btn">folder</button>
+    <button onclick="showUploadModal()" class="btn primary">{{uploadIcon}} upload</button>
+    <button onclick="showMkdirModal()" class="btn">{{mkdirIcon}} folder</button>
 </div>
 <div class="file-list admin-list">
     {{#hasParent}}
     <div class="file-item parent directory">
         <a href="{{parentUrl}}">
+            <span class="icon">{{upIcon}}</span>
             <span class="name">..</span>
         </a>
     </div>
@@ -20,8 +21,8 @@
         {{#showSize}}<span class="size">{{size}}</span>{{/showSize}}
         {{#showDate}}<span class="date">{{date}}</span>{{/showDate}}
         <div class="actions">
-            <button onclick="renameItem('{{path}}')" title="rename">[rename]</button>
-            <button onclick="deleteItem('{{path}}')" title="delete" class="danger">[delete]</button>
+            <button onclick="renameItem('{{path}}')" title="rename">{{editIcon}}</button>
+            <button onclick="deleteItem('{{path}}')" title="delete" class="danger">{{trashIcon}}</button>
         </div>
     </div>
     {{/entries}}

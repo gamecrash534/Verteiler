@@ -541,6 +541,11 @@ input:focus {
     border-bottom: 1px solid var(--border);
 }
 
+.actions button svg, .btn svg {
+    width: 14px;
+    height: 14px;
+}
+
 @media (max-width: 600px) {
     .file-item .date {
         display: none;
