@@ -46,9 +46,10 @@ public class Configuration {
     public final boolean allowDirectoryListing;
     public final String[] allowedExtensions;
 
-    // Caching
+    // Performance
     public final boolean enableCaching;
     public final int cacheMaxAge;
+    public final boolean minifyFiles;
 
     public Configuration(Path configPath) throws IOException {
         if (!Files.exists(configPath)) createDefaultConfig(configPath);
@@ -81,6 +82,7 @@ public class Configuration {
 
         enableCaching = getBoolean("performance.enable_caching", true);
         cacheMaxAge = getInt("performance.cache_max_age", 3600);
+        minifyFiles = getBoolean("performance.minify_files", true);
     }
 
     public static Configuration load(Path path) {

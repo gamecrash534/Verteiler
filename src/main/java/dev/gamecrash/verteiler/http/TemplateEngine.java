@@ -1,6 +1,7 @@
 package dev.gamecrash.verteiler.http;
 
 import dev.gamecrash.verteiler.logging.Logger;
+import dev.gamecrash.verteiler.util.Minifier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +32,7 @@ public class TemplateEngine {
     }
 
     public String getCSS() {
-        return staticFileCache.computeIfAbsent("web/static/css/style.css", this::loadResource);
+        return staticFileCache.computeIfAbsent("web/static/css/style.css", key -> Minifier.minifyCSS(loadResource(key)));
     }
 
     public String getJS() {

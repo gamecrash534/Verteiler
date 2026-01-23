@@ -31,3 +31,4 @@ allowed_extensions = ""
 [performance]
 enable_caching = true
 cache_max_age = 3600
+minify_files = true
