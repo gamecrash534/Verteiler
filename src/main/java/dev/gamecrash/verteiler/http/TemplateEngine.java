@@ -28,7 +28,7 @@ public class TemplateEngine {
     }
 
     public String getTemplate(String name) {
-        return templateCache.computeIfAbsent(name, this::loadTemplate);
+        return templateCache.computeIfAbsent(name, key -> Minifier.minifyHTML(loadTemplate(key)));
     }
 
     public String getCSS() {
@@ -36,7 +36,7 @@ public class TemplateEngine {
     }
 
     public String getJS() {
-        return staticFileCache.computeIfAbsent("web/static/js/app.js", this::loadResource);
+        return staticFileCache.computeIfAbsent("web/static/js/app.js", key -> Minifier.minifyJS(loadResource(key)));
     }
 
     public String getIcon(String name) {
