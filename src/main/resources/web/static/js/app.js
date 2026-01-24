@@ -6,6 +6,20 @@ function getToken() {
     token = cookies.split("; ").find(val => val.startsWith("admin_token")).substring("admin_token=".length, cookies.length - 1);
 }
 
+function toggleTheme() {
+    let theme = window.localStorage.getItem("theme");
+    setTheme(theme === "light" ? "dark" : "light");
+}
+
+function setTheme(theme) {
+    window.localStorage.setItem("theme", theme);
+
+    if (theme === "dark") document.body.setAttribute("data-theme", "dark");
+    else document.body.setAttribute("data-theme", "light");
+
+    document.getElementById("theme-toggle").textContent = `[theme:${theme}]`;
+}
+
 function showUploadModal() {
     document.getElementById('uploadModal').classList.add('active');
 }
@@ -94,6 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     getToken();
+    setTheme(window.localStorage.getItem("theme"));
 });
 
 async function deleteItem(path) {

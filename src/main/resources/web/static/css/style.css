@@ -6,10 +6,21 @@
     --text-muted: #8b949e;
     --accent: #58a6ff;
     --accent-hover: #79b8ff;
-    --green: #3fb950;
     --red: #f85149;
     --border: #30363d;
     --mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
+}
+
+body[data-theme="light"] {
+    --bg: #f2eee8;
+    --bg-secondary: #e9e4dd;
+    --bg-hover: #e0dbd7;
+    --text: #191616;
+    --text-muted: #4c4a46;
+    --accent: #0064bc;
+    --accent-hover: #0b516e;
+    --red: #f85149;
+    --border: #cfc9c2;
 }
 
 * {

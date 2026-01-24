@@ -6,13 +6,14 @@
         <title>{{appName}} / {{title}}</title>
         <link rel="stylesheet" href="/assets/css/style.css">
     </head>
-    <body>
+    <body data-theme="dark">
         <header>
             <nav>
                 <a href="/" class="logo">{{appName}}</a>
                 <div class="nav-links">
                     <a href="/browse" {{#isBrowsing}} class="active" {{/isBrowsing}} >[files]</a>
                     {{#isAdmin}}<a href="/admin" {{#isOnAdmin}} class="active" {{/isOnAdmin}} >[admin]</a>{{/isAdmin}}
+                    <a href="#" onclick="toggleTheme()" id="theme-toggle">[theme:dark]</a>
                 </div>
             </nav>
         </header>
