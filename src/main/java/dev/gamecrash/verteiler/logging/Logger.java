@@ -153,7 +153,7 @@ public class Logger {
     public void flushQueue() {
         if (!logToFile) return;
         try {
-            Files.write(logFile, String.join("\n", logFileQueue).getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
+            Files.writeString(logFile, String.join("\n", logFileQueue), StandardOpenOption.APPEND);
         } catch (IOException e) {
             System.out.println("Error on writing logs to file:");
             e.printStackTrace();
