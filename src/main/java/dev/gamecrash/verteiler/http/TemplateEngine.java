@@ -40,7 +40,7 @@ public class TemplateEngine {
     }
 
     public String getIcon(String name) {
-        return staticFileCache.computeIfAbsent(name, this::loadIcon);
+        return staticFileCache.computeIfAbsent(name, key -> Minifier.minifyHTML(loadIcon(key)));
     }
 
     public String render(String template, Map<String, Object> context) {

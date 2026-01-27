@@ -8,6 +8,7 @@ import dev.gamecrash.verteiler.storage.FileStorage;
 import io.javalin.http.Context;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -122,7 +123,10 @@ public class FileRoutes {
 
         String rangeHeader = ctx.header("Range");
         if (rangeHeader != null && rangeHeader.startsWith("bytes=")) handleRangeRequest(ctx, filePath, entry.size(), rangeHeader);
-        else ctx.result(Files.newInputStream(filePath));
+        else {
+            ctx.header("Content-Length", String.valueOf(entry.size()));
+            ctx.result(Files.newInputStream(filePath));
+        }
     }
 
     private void handleRangeRequest(Context ctx, Path filePath, long fileSize, String rangeHeader) throws IOException {
@@ -143,10 +147,10 @@ public class FileRoutes {
         ctx.header("Content-Length", String.valueOf(length));
         ctx.header("Accept-Ranges", "bytes");
 
-        byte[] allBytes = Files.readAllBytes(filePath);
-        byte[] rangeBytes = new byte[(int) length];
-        System.arraycopy(allBytes, (int) start, rangeBytes, 0, (int) length);
-        ctx.result(rangeBytes);
+        try (InputStream stream = Files.newInputStream(filePath)) {
+            stream.skip(start);
+            ctx.result(stream.readNBytes((int) length));
+        }
     }
 
     private boolean isAdmin(Context ctx) {
