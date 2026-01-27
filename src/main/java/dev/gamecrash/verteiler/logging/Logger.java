@@ -138,8 +138,8 @@ public class Logger {
             " [" + caller + "] " +
             formattedMessage;
 
-        if (logFileQueue.size() < 64) logFileQueue.add(plainOutput);
-        else flushQueue();
+        logFileQueue.add(plainOutput);
+        if (logFileQueue.size() >= 64) flushQueue();
     }
 
     public void flushQueue() {
