@@ -1,6 +1,6 @@
 package dev.gamecrash.verteiler.logging;
 
-import static dev.gamecrash.verteiler.logging.Logger.*;
+import static dev.gamecrash.verteiler.logging.Colors.*;
 
 public enum LogLevel {
     INFO(BLUE, "INFO"),

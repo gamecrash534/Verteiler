@@ -4,7 +4,6 @@ import dev.gamecrash.verteiler.config.Configuration;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -13,6 +12,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
+
+import static dev.gamecrash.verteiler.logging.Colors.*;
 
 public class Logger {
     private static Logger instance;
@@ -24,15 +25,6 @@ public class Logger {
     private final PrintStream err;
     private final DateTimeFormatter dateFormatter;
     private final Set<String> logFileQueue = new HashSet<>();
-
-    public static final String RESET = "\u001B[0m";
-    public static final String BOLD = "\u001B[1m";
-    public static final String DIM = "\u001B[2m";
-    public static final String RED = "\u001B[38;5;196m";
-    public static final String ORANGE = "\u001B[38;5;208m";
-    public static final String BLUE = "\u001B[38;5;75m";
-    public static final String PURPLE = "\u001B[38;5;141m";
-    public static final String WHITE = "\u001B[38;5;255m";
 
     public Logger() {
         this.out = System.out;
