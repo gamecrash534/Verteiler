@@ -3,12 +3,15 @@ package dev.gamecrash.verteiler.http.routes;
 import dev.gamecrash.verteiler.config.Configuration;
 import dev.gamecrash.verteiler.http.WebServer;
 import dev.gamecrash.verteiler.http.WebUI;
+import dev.gamecrash.verteiler.logging.Logger;
 import dev.gamecrash.verteiler.storage.FileEntry;
 import dev.gamecrash.verteiler.storage.FileStorage;
 import io.javalin.http.Context;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -16,6 +19,7 @@ import java.util.List;
 public class FileRoutes {
     private final FileStorage fileStorage;
     private final Configuration config;
+    private final Logger logger = Logger.getInstance();
 
     public FileRoutes(FileStorage fileStorage, Configuration config) {
         this.fileStorage = fileStorage;
@@ -110,26 +114,28 @@ public class FileRoutes {
         FileEntry entry = fileStorage.get(path);
         if (entry == null) {
             ctx.status(404).result("File not found");
+            return;
         }
 
+        logger.info("Serving {}", path);
+
         Path filePath = fileStorage.getAbsolutePath(path);
+        var response = ctx.res();
 
-        ctx.contentType(entry.mimeType());
-        ctx.header("Content-Length", String.valueOf(entry.size()));
-
-        if (config.enableCaching) ctx.header("Cache-Control", "public, max-age=" + config.cacheMaxAge);
-        if (asDownload) ctx.header("Content-Disposition", "attachment; filename=\"" + entry.name() + "\"");
-        else ctx.header("Content-Disposition", "inline; filename=\"" + entry.name() + "\"");
+        response.setContentType(entry.mimeType());
+        response.setHeader("Accept-Ranges", "bytes");
+        response.setHeader("Cache-Control", config.enableCaching ? "public, max-age=" + config.cacheMaxAge : "no-store");
+        response.setHeader("Content-Disposition", (asDownload ? "attachment" : "inline") + "; filename=\"" + entry.name() + "\"");
 
         String rangeHeader = ctx.header("Range");
-        if (rangeHeader != null && rangeHeader.startsWith("bytes=")) handleRangeRequest(ctx, filePath, entry.size(), rangeHeader);
+        if (rangeHeader != null && rangeHeader.startsWith("bytes=")) handleRangeRequest(response, filePath, entry.size(), rangeHeader);
         else {
-            ctx.header("Content-Length", String.valueOf(entry.size()));
-            ctx.result(Files.newInputStream(filePath));
+            response.setContentLengthLong(entry.size());
+            Files.copy(filePath, response.getOutputStream());
         }
     }
 
-    private void handleRangeRequest(Context ctx, Path filePath, long fileSize, String rangeHeader) throws IOException {
+    private void handleRangeRequest(HttpServletResponse response, Path filePath, long fileSize, String rangeHeader) throws IOException {
         String range = rangeHeader.substring(6);
         String[] parts = range.split("-");
 
@@ -137,19 +143,32 @@ public class FileRoutes {
         long end = parts.length > 1 && !parts[1].isEmpty() ? Long.parseLong(parts[1]) : fileSize - 1;
 
         if (start > end || start < 0 || end >= fileSize) {
-            ctx.status(416).header("Content-Range", "bytes */" + fileSize);
+            response.setStatus(416);
+            response.setHeader("Content-Range", "bytes */" + fileSize);
             return;
         }
 
         long length = end - start + 1;
-        ctx.status(206);
-        ctx.header("Content-Range", "bytes " + start + "-" + end + "/" + fileSize);
-        ctx.header("Content-Length", String.valueOf(length));
-        ctx.header("Accept-Ranges", "bytes");
+        response.setStatus(206);
+        response.setHeader("Content-Range", "bytes " + start + "-" + end + "/" + fileSize);
+        response.setContentLengthLong(length);
 
-        try (InputStream stream = Files.newInputStream(filePath)) {
-            stream.skip(start);
-            ctx.result(stream.readNBytes((int) length));
+        try (var channel = Files.newByteChannel(filePath)) {
+            channel.position(start);
+            var out = response.getOutputStream();
+            var buffer = ByteBuffer.allocate(16384);
+            long remaining = length;
+
+            while (remaining > 0) {
+                buffer.clear();
+                if (remaining < buffer.capacity()) buffer.limit((int) remaining);
+
+                int read = channel.read(buffer);
+                if (read <= 0) break;
+
+                out.write(buffer.array(), 0, read);
+                remaining -= read;
+            }
         }
     }
 
