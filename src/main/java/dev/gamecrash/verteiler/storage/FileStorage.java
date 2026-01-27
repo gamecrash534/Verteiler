@@ -1,9 +1,9 @@
 package dev.gamecrash.verteiler.storage;
 
-import com.sun.source.doctree.EscapeTree;
 import dev.gamecrash.verteiler.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -71,12 +71,12 @@ public class FileStorage {
         if (!Files.exists(path)) return false;
 
         if (Files.isDirectory(path)) {
-            try (Stream<Path> files = Files.walk(path)) {
-                files.forEach(file -> {
+            try (Stream<Path> paths = Files.walk(path)) {
+                paths.sorted(Comparator.reverseOrder()).forEach(file -> {
                     try {
                         Files.delete(file);
                     } catch (IOException e) {
-                        logger.error("Failed to delete {}", e, file);
+                        logger.error("Could not delete {}", e, file.toString());
                     }
                 });
             }
