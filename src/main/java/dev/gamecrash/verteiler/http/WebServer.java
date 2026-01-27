@@ -10,8 +10,6 @@ import dev.gamecrash.verteiler.util.Json;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
-import java.io.IOException;
-
 public class WebServer {
     private static final Logger logger = Logger.getInstance();
 
@@ -64,7 +62,7 @@ public class WebServer {
         server.get("/browse", fileRoutes::browse);
         server.get("/browse/*", fileRoutes::browse);
         server.get("/download/*", fileRoutes::download);
-        server.get("/raw/*", fileRoutes::ram);
+        server.get("/raw/*", fileRoutes::raw);
         server.get("/preview/*", fileRoutes::preview);
 
         if (config.adminEnabled) {

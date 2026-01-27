@@ -62,7 +62,7 @@ public class FileRoutes {
         serveFile(ctx, path, true);
     }
 
-    public void ram(Context ctx) throws IOException {
+    public void raw(Context ctx) throws IOException {
         String path = getPathFromContext(ctx, "/raw");
 
         if (!fileStorage.exists(path)) {
