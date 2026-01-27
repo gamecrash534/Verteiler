@@ -6,6 +6,10 @@ function getToken() {
     token = cookies.split("; ").find(val => val.startsWith("admin_token")).substring("admin_token=".length, cookies.length - 1);
 }
 
+function getCurrentPath() {
+    currentPath = window.location.pathname.split("/browse/")[1];
+}
+
 function toggleTheme() {
     let theme = window.localStorage.getItem("theme");
     setTheme(theme === "light" ? "dark" : "light");
@@ -85,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
         mkdirForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const name = mkdirForm.querySelector('input[name="name"]').value;
-            const path = CURRENT_PATH ? CURRENT_PATH + '/' + name : name;
+            const path = currentPath ? currentPath + '/' + name : name;
             try {
                 const res = await fetch('/api/admin/mkdir?token=' + token, {
                     method: 'POST',
@@ -108,8 +112,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     getToken();
+    getCurrentPath();
     setTheme(window.localStorage.getItem("theme"));
 });
+
+window.onload = getCurrentPath;
 
 async function deleteItem(path) {
     if (!confirm('Delete ' + path + '?')) return;

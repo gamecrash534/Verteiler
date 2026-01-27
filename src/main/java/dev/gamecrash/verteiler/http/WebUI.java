@@ -125,10 +125,7 @@ public class WebUI {
             .put("trashIcon", engine.getIcon("trash"))
             .build());
 
-        // TODO: find better solution
-        String scripts = "const CURRENT_PATH = '" + escapeJs(path) + "';";
-
-        return renderLayout(config, "admin - files", content, true, scripts);
+        return renderLayout(config, "admin - files", content, true, null);
     }
 
     public static String error404(Configuration config, String message, boolean isAdmin) {

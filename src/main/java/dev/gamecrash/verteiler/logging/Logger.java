@@ -147,7 +147,7 @@ public class Logger {
         try {
             Files.writeString(logFile, String.join("\n", logFileQueue), StandardOpenOption.APPEND);
         } catch (IOException e) {
-            System.out.println("Error on writing logs to file:");
+            System.err.println("Error on writing logs to file:");
             e.printStackTrace();
         } finally {
             logFileQueue.clear();
