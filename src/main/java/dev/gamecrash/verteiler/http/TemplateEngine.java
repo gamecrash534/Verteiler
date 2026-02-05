@@ -35,8 +35,8 @@ public class TemplateEngine {
         return staticFileCache.computeIfAbsent("web/static/css/style.css", key -> Minifier.minifyCSS(loadResource(key)));
     }
 
-    public String getJS() {
-        return staticFileCache.computeIfAbsent("web/static/js/app.js", key -> Minifier.minifyJS(loadResource(key)));
+    public String getJS(String script) {
+        return staticFileCache.computeIfAbsent("web/static/js/" + script + ".js", key -> Minifier.minifyJS(loadResource(key)));
     }
 
     public String getIcon(String name) {

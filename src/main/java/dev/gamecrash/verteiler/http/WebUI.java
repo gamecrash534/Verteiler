@@ -196,8 +196,8 @@ public class WebUI {
         return engine.getCSS();
     }
 
-    public static String getJS() {
-        return engine.getJS();
+    public static String getJS(String script) {
+        return engine.getJS(script);
     }
 
     private static String getParentUrl(String path, String baseUrl) {
