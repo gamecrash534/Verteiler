@@ -1,10 +1,15 @@
 package dev.gamecrash.verteiler.http;
 
+import dev.gamecrash.verteiler.Main;
 import dev.gamecrash.verteiler.config.Configuration;
+import dev.gamecrash.verteiler.logging.Logger;
 import dev.gamecrash.verteiler.storage.FileEntry;
 import dev.gamecrash.verteiler.storage.MimeTypes;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -15,6 +20,7 @@ import java.util.Map;
 public class WebUI {
     private static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm").withZone(ZoneId.systemDefault());
     private static final TemplateEngine engine = TemplateEngine.getInstance();
+    private static byte[] icon = new byte[0];
 
     public static String browseDirectory(Configuration config, String path, List<FileEntry> entries, boolean isAdmin) {
         List<Map<String, Object>> entryList = new ArrayList<>();
@@ -198,6 +204,18 @@ public class WebUI {
 
     public static String getJS(String script) {
         return engine.getJS(script);
+    }
+
+    public static byte[] getFavicon() {
+        if (icon.length > 0) return icon;
+
+        try (InputStream stream = Main.class.getClassLoader().getResourceAsStream("web/static/favicon.png")) {
+            if (stream == null) return null;
+            return icon = stream.readAllBytes();
+        } catch (IOException e) {
+            Logger.getInstance().error("Could not load favicon", e);
+            return null;
+        }
     }
 
     private static String getParentUrl(String path, String baseUrl) {

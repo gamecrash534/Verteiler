@@ -58,6 +58,7 @@ public class WebServer {
         server.get("/assets/css/style.css", ctx -> ctx.contentType("text/css").result(WebUI.getCSS()));
         server.get("/assets/js/app.js", ctx -> ctx.contentType("text/javascript").result(WebUI.getJS("app")));
         server.get("/assets/js/admin.js", ctx -> ctx.contentType("text/javascript").result(WebUI.getJS("admin")));
+        server.get("/favicon.ico", ctx -> ctx.contentType("image/png").result(WebUI.getFavicon()));
 
         server.get("/", fileRoutes::index);
         server.get("/browse", fileRoutes::browse);
