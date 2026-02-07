@@ -4,6 +4,7 @@ function toggleTheme() {
 }
 
 function setTheme(theme) {
+    if (theme == null) theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)') ? "dark" : "light";
     window.localStorage.setItem("theme", theme);
 
     if (theme === "dark") document.body.setAttribute("data-theme", "dark");
