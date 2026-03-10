@@ -1,0 +1,24 @@
+when:
+  event: [push, manual]
+  branch: master
+
+steps:
+  - name: build & publish
+    image: woodpeckerci/plugin-docker-buildx
+    settings:
+      repo: game.crash/verteiler
+      registry:
+        from_secret: reg_url
+      username:
+        from_secret: reg_owner
+      password:
+        from_secret: reg_token
+      dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
+        - linux/arm64
+      tags:
+        - latest
+        - ${CI_COMMIT_TAG:-${CI_COMMIT_SHA:0:8}}
+      auto_tag: true
+      compress: true

@@ -73,4 +73,16 @@
             </plugin>
         </plugins>
     </build>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>gamecrash-git</id>
+            <url>https://git.gamecrash.dev/api/packages/game.crash/maven</url>
+        </snapshotRepository>
+        <repository>
+            <id>gamecrash-git</id>
+            <url>https://git.gamecrash.dev/api/packages/game.crash/maven</url>
+        </repository>
+    </distributionManagement>
+
 </project>
