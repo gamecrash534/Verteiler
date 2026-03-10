@@ -6,7 +6,7 @@ steps:
   - name: build & publish
     image: woodpeckerci/plugin-docker-buildx
     settings:
-      repo: game.crash/verteiler
+      repo: git.gamecrash.dev/game.crash/verteiler
       registry:
         from_secret: reg_url
       username:
