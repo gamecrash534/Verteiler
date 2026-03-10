@@ -198,8 +198,8 @@ public class WebUI {
         return builder.toString();
     }
 
-    public static String getCSS() {
-        return engine.getCSS();
+    public static String getCSS(String name) {
+        return engine.getCSS(name);
     }
 
     public static String getJS(String script) {

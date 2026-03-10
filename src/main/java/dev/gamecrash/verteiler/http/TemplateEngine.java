@@ -31,8 +31,8 @@ public class TemplateEngine {
         return templateCache.computeIfAbsent(name, key -> Minifier.minifyHTML(loadTemplate(key)));
     }
 
-    public String getCSS() {
-        return staticFileCache.computeIfAbsent("web/static/css/style.css", key -> Minifier.minifyCSS(loadResource(key)));
+    public String getCSS(String stylesheet) {
+        return staticFileCache.computeIfAbsent("web/static/css/" + stylesheet + ".css", key -> Minifier.minifyCSS(loadResource(key)));
     }
 
     public String getJS(String script) {

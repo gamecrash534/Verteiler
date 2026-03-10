@@ -55,7 +55,8 @@ public class WebServer {
         AdminRoutes adminRoutes = new AdminRoutes(fileStorage, config);
         ApiRoutes apiRoutes = new ApiRoutes(fileStorage, config);
 
-        server.get("/assets/css/style.css", ctx -> ctx.contentType("text/css").result(WebUI.getCSS()));
+        server.get("/assets/css/style.css", ctx -> ctx.contentType("text/css").result(WebUI.getCSS("style")));
+        server.get("/assets/css/admin.css", ctx -> ctx.contentType("text/css").result(WebUI.getCSS("admin")));
         server.get("/assets/js/app.js", ctx -> ctx.contentType("text/javascript").result(WebUI.getJS("app")));
         server.get("/assets/js/admin.js", ctx -> ctx.contentType("text/javascript").result(WebUI.getJS("admin")));
         server.get("/favicon.ico", ctx -> ctx.contentType("image/png").result(WebUI.getFavicon()));
