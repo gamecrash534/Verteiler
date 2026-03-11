@@ -2,6 +2,7 @@ package dev.gamecrash.verteiler.http;
 
 import dev.gamecrash.verteiler.logging.Logger;
 import dev.gamecrash.verteiler.util.Minifier;
+import dev.gamecrash.verteiler.util.Resources;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,11 +33,11 @@ public class TemplateEngine {
     }
 
     public String getCSS(String stylesheet) {
-        return staticFileCache.computeIfAbsent("web/static/css/" + stylesheet + ".css", key -> Minifier.minifyCSS(loadResource(key)));
+        return staticFileCache.computeIfAbsent("web/static/css/" + stylesheet + ".css", key -> Minifier.minifyCSS(Resources.loadResource(key)));
     }
 
     public String getJS(String script) {
-        return staticFileCache.computeIfAbsent("web/static/js/" + script + ".js", key -> Minifier.minifyJS(loadResource(key)));
+        return staticFileCache.computeIfAbsent("web/static/js/" + script + ".js", key -> Minifier.minifyJS(Resources.loadResource(key)));
     }
 
     public String getIcon(String name) {
@@ -98,22 +99,12 @@ public class TemplateEngine {
         return buffer.toString();
     }
 
-    private String loadResource(String path) {
-        try (InputStream stream = getClass().getClassLoader().getResourceAsStream(path)) {
-            if (stream == null) return "<!-- Resource '" + path + "' not found -->";
-            return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            logger.error("Could not load resource {}", e, path);
-            return "<!-- Error loading '" + path + "' -->";
-        }
-    }
-
     private String loadTemplate(String name) {
-        return loadResource("web/templates/" + name + ".html");
+        return Resources.loadResource("web/templates/" + name + ".html");
     }
 
     private String loadIcon(String name) {
-        return loadResource("web/static/icons/" + name + ".svg");
+        return Resources.loadResource("web/static/icons/" + name + ".svg");
     }
 
     public static ContextBuilder context() {

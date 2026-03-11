@@ -42,6 +42,10 @@ public class Configuration {
     public final boolean footerEnabled;
     public final boolean showCredits;
 
+    // UI, Resources
+    public final boolean useCustomResources;
+    public final String customResourcesDirectory;
+
      // Security
     public final boolean allowDirectoryListing;
     public final String[] allowedExtensions;
@@ -75,6 +79,9 @@ public class Configuration {
 
         footerEnabled = getBoolean("ui.footer.enabled", "VERTEILER_FOOTER_ENABLED", true);
         showCredits = getBoolean("ui.footer.show_credits", "VERTEILER_SHOW_CREDITS", true);
+
+        useCustomResources = getBoolean("ui.resources.use_custom_resources", "VERTEILER_USE_CUSTOM_RESOURCES", false);
+        customResourcesDirectory = getString("ui.resources.custom_resources_directory", "VERTEILER_CUSTOM_RESOURCES_DIRECTORY", "./web");
 
         allowDirectoryListing = getBoolean("security.allow_directory_listing", "VERTEILER_ALLOW_DIRECTORY_LISTING", true);
         String extensions = getString("security.allowed_extensions", "VERTEILER_ALLOWED_EXTENSIONS", "");

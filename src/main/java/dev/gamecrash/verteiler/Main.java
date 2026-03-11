@@ -4,9 +4,9 @@ import dev.gamecrash.verteiler.config.Configuration;
 import dev.gamecrash.verteiler.http.WebServer;
 import dev.gamecrash.verteiler.logging.Logger;
 import dev.gamecrash.verteiler.storage.FileStorage;
+import dev.gamecrash.verteiler.util.Resources;
 
-import java.io.IOException;
-import java.nio.file.FileStore;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -23,7 +23,7 @@ public class Main {
             Path configPath = Paths.get("config.toml");
             for (int i = 0; i < args.length; i++) {
                 if ((args[i].equals("-c") || args[i].equals("--config")) && i + 1 < args.length) {
-                    configPath = Paths.get(args[i + 1]);
+                    configPath = Path.of(args[i + 1]);
                     break;
                 }
             }
@@ -33,6 +33,9 @@ public class Main {
             config = Configuration.load(configPath);
             logger.loadConfig();
             logger.info("Loaded config. Data directory: {}", config.getDataPath().toAbsolutePath());
+
+            Path resourcesPath = Path.of(config.customResourcesDirectory);
+            if (config.useCustomResources && !Files.exists(resourcesPath)) Resources.saveResourcesToPath(resourcesPath);
 
             fileStorage = new FileStorage(config.getDataPath());
 

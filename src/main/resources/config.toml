@@ -24,6 +24,10 @@ enable_preview = true
 enabled = true
 show_credits = true
 
+[ui.resources]
+use_custom_resources = false
+custom_resources_directory = "./web"
+
 [security]
 allow_directory_listing = true
 allowed_extensions = ""
