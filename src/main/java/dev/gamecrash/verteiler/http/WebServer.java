@@ -55,11 +55,9 @@ public class WebServer {
         AdminRoutes adminRoutes = new AdminRoutes(fileStorage, config);
         ApiRoutes apiRoutes = new ApiRoutes(fileStorage, config);
 
-        server.get("/assets/css/style.css", ctx -> ctx.contentType("text/css").result(WebUI.getCSS("style")));
-        server.get("/assets/css/admin.css", ctx -> ctx.contentType("text/css").result(WebUI.getCSS("admin")));
-        server.get("/assets/js/app.js", ctx -> ctx.contentType("text/javascript").result(WebUI.getJS("app")));
-        server.get("/assets/js/admin.js", ctx -> ctx.contentType("text/javascript").result(WebUI.getJS("admin")));
-        server.get("/favicon.ico", ctx -> ctx.contentType("image/png").result(WebUI.getFavicon()));
+        server.get("/assets/css/*", WebServer::webResource);
+        server.get("/assets/js/*",  WebServer::webResource);
+        server.get("/favicon.ico",  WebServer::webResource);
 
         server.get("/", fileRoutes::index);
         server.get("/browse", fileRoutes::browse);
@@ -91,5 +89,15 @@ public class WebServer {
 
     public static void jsonRes(Context ctx, int status, boolean success, String message) {
         ctx.status(status).contentType("application/json").result(Json.object("success", success, "message", message));
+    }
+
+    private static void webResource(Context ctx) {
+        if (ctx.path().startsWith("/assets/css/")) {
+            String sheet = ctx.path().replace("/assets/css/", "").replace(".css", "");
+            ctx.contentType("text/css").result(WebUI.getCSS(sheet));
+        } else if (ctx.path().startsWith("/assets/js")) {
+            String script = ctx.path().replace("/assets/js/", "").replace(".js", "");
+            ctx.contentType("text/css").result(WebUI.getJS(script));
+        }
     }
 }
