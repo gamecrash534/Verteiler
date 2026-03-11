@@ -55,34 +55,34 @@ public class Configuration {
         if (!Files.exists(configPath)) createDefaultConfig(configPath);
         toml = Toml.parse(configPath);
 
-        host = getString("server.host", "0.0.0.0");
-        port = getInt("server.port", 2987);
-        dataDirectory = getString("server.data_directory", "./data");
+        host = getString("server.host", "VERTEILER_HOST", "0.0.0.0");
+        port = getInt("server.port", "VERTEILER_PORT", 2987);
+        dataDirectory = getString("server.data_directory", "VERTEILER_DATA_DIRECTORY", "./data");
 
-        logLevel = getString("logging.level", "INFO");
-        logAccess = getBoolean("logging.log_access", true);
-        logToFile = getBoolean("logging.log_to_file", false);
-        logDirectory = getString("logging.log_directory", "./logs");
+        logLevel = getString("logging.level", "VERTEILER_LOG_LEVEL", "INFO");
+        logAccess = getBoolean("logging.log_access", "VERTEILER_LOG_ACCESS", true);
+        logToFile = getBoolean("logging.log_to_file", "VERTEILER_LOG_TO_FILE", false);
+        logDirectory = getString("logging.log_directory", "VERTEILER_LOG_DIRECTORY", "./logs");
 
-        adminEnabled = getBoolean("admin.enabled", true);
-        adminToken = getString("admin.token", generateToken());
+        adminEnabled = getBoolean("admin.enabled", "VERTEILER_ADMIN_ENABLED", true);
+        adminToken = getString("admin.token", "VERTEILER_ADMIN_TOKEN", generateToken());
 
-        title = getString("ui.title", "Verteiler");
-        showFileSizes = getBoolean("ui.show_file_sizes", true);
-        showDates = getBoolean("ui.show_dates", true);
-        dragDropUpload = getBoolean("ui.drag_drop_upload", true);
-        enablePreview = getBoolean("ui.enable_preview", true);
+        title = getString("ui.title", "VERTEILER_TITLE", "Verteiler");
+        showFileSizes = getBoolean("ui.show_file_sizes", "VERTEILER_SHOW_FILE_SIZES", true);
+        showDates = getBoolean("ui.show_dates", "VERTEILER_SHOW_DATES", true);
+        dragDropUpload = getBoolean("ui.drag_drop_upload", "VERTEILER_DRAG_DROP_UPLOAD", true);
+        enablePreview = getBoolean("ui.enable_preview", "VERTEILER_ENABLE_PREVIEW", true);
 
-        footerEnabled = getBoolean("ui.footer.enabled", true);
-        showCredits = getBoolean("ui.footer.show_credits", true);
+        footerEnabled = getBoolean("ui.footer.enabled", "VERTEILER_FOOTER_ENABLED", true);
+        showCredits = getBoolean("ui.footer.show_credits", "VERTEILER_SHOW_CREDITS", true);
 
-        allowDirectoryListing = getBoolean("security.allow_directory_listing", true);
-        String extensions = getString("security.allowed_extensions", "");
+        allowDirectoryListing = getBoolean("security.allow_directory_listing", "VERTEILER_ALLOW_DIRECTORY_LISTING", true);
+        String extensions = getString("security.allowed_extensions", "VERTEILER_ALLOWED_EXTENSIONS", "");
         this.allowedExtensions = extensions.isEmpty() ? new String[0] : extensions.split(",");
 
-        enableCaching = getBoolean("performance.enable_caching", true);
-        cacheMaxAge = getInt("performance.cache_max_age", 3600);
-        minifyFiles = getBoolean("performance.minify_files", true);
+        enableCaching = getBoolean("performance.enable_caching", "VERTEILER_ENABLE_CACHING", true);
+        cacheMaxAge = getInt("performance.cache_max_age", "VERTEILER_CACHE_MAX_AGE", 3600);
+        minifyFiles = getBoolean("performance.minify_files", "VERTEILER_MINIFY_FILES", true);
     }
 
     public static Configuration load(Path path) {
@@ -108,24 +108,29 @@ public class Configuration {
         Files.writeString(path, conf);
     }
 
-    private String getString(String key, String defaultValue) {
-        String value = toml.getString(key);
-        return value == null ? defaultValue : value;
+    private String getString(String key, String envVar, String defaultValue) {
+        String envValue = System.getenv(envVar);
+        if (envValue != null) return envValue;
+        String tomlValue = toml.getString(key);
+        return tomlValue != null ? tomlValue : defaultValue;
     }
 
-    private int getInt(String key, int defaultValue) {
-        Long value = toml.getLong(key);
-        return value == null ? defaultValue : value.intValue();
+    private int getInt(String key, String envVar, int defaultValue) {
+        String envValue = System.getenv(envVar);
+        if (envValue != null) try {
+            return Integer.parseInt(envValue);
+        } catch (NumberFormatException ignored) { }
+        Long tomlValue = toml.getLong(key);
+        if (tomlValue != null) return tomlValue.intValue();
+        return defaultValue;
     }
 
-    private long getLong(String key, long defaultValue) {
-        Long value = toml.getLong(key);
-        return value == null ? defaultValue : value;
-    }
-
-    private boolean getBoolean(String key, boolean defaultValue) {
-        Boolean value = toml.getBoolean(key);
-        return value == null ? defaultValue : value;
+    private boolean getBoolean(String key, String envVar, boolean defaultValue) {
+        String envValue = System.getenv(envVar);
+        if (envValue != null) return Boolean.parseBoolean(envValue);
+        Boolean tomlValue = toml.getBoolean(key);
+        if (tomlValue != null) return tomlValue;
+        return defaultValue;
     }
 
     public static Configuration getInstance() {
