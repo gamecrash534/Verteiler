@@ -8,6 +8,7 @@ import dev.gamecrash.verteiler.logging.Logger;
 import dev.gamecrash.verteiler.storage.FileStorage;
 import dev.gamecrash.verteiler.util.Json;
 import io.javalin.Javalin;
+import io.javalin.apibuilder.ApiBuilder;
 import io.javalin.http.Context;
 
 public class WebServer {
@@ -27,17 +28,17 @@ public class WebServer {
             if (config.logAccess)
                 javalinConfig.requestLogger.http((ctx, ms) -> logger.info("{} {} {} - {}ms", ctx.method(), ctx.path(),
                     ctx.status(), String.format("%.2f", ms)));
-        });
 
-        registerRoutes();
-
-        server.exception(Exception.class, (e, ctx) -> {
-            logger.error("Exception got caught", e);
-            jsonRes(ctx, 500, false, "Internal server error");
+            javalinConfig.routes.exception(Exception.class, (e, ctx) -> {
+                logger.error("Exception got caught", e);
+                jsonRes(ctx, 500, false, "Internal server error");
+            });
+            
+            javalinConfig.routes.apiBuilder(this::registerRoutes);
         });
 
         server.start(config.host, config.port);
-        logger.info("Web Server startet on http://{}:{}", config.host, config.port);
+        logger.info("Web Server started on http://{}:{}", config.host, config.port);
 
         if (config.adminEnabled) {
             logger.info("Admin interface can be found under http://{}:{}/{}", config.host, config.port, "admin");
@@ -55,36 +56,35 @@ public class WebServer {
         AdminRoutes adminRoutes = new AdminRoutes(fileStorage, config);
         ApiRoutes apiRoutes = new ApiRoutes(fileStorage, config);
 
-        server.get("/assets/css/*", WebServer::webResource);
-        server.get("/assets/js/*",  WebServer::webResource);
-        server.get("/favicon.ico",  WebServer::webResource);
+        ApiBuilder.get("/assets/css/*", WebServer::webResource);
+        ApiBuilder.get("/assets/js/*",  WebServer::webResource);
+        ApiBuilder.get("/favicon.ico",  WebServer::webResource);
 
-        server.get("/", fileRoutes::index);
-        server.get("/browse", fileRoutes::browse);
-        server.get("/browse/*", fileRoutes::browse);
-        server.get("/download/*", fileRoutes::download);
-        server.get("/raw/*", fileRoutes::raw);
-        server.get("/preview/*", fileRoutes::preview);
+        ApiBuilder.get("/", fileRoutes::index);
+        ApiBuilder.get("/browse", fileRoutes::browse);
+        ApiBuilder.get("/browse/*", fileRoutes::browse);
+        ApiBuilder.get("/download/*", fileRoutes::download);
+        ApiBuilder.get("/raw/*", fileRoutes::raw);
+        ApiBuilder.get("/preview/*", fileRoutes::preview);
 
         if (config.adminEnabled) {
-            // TODO: authentication stuff
-            server.before("/admin", adminRoutes::authenticate);
-            server.before("/admin/*", adminRoutes::authenticate);
-            server.before("/api/admin/*", adminRoutes::authenticate);
+            ApiBuilder.before("/admin", adminRoutes::authenticate);
+            ApiBuilder.before("/admin/*", adminRoutes::authenticate);
+            ApiBuilder.before("/api/admin/*", adminRoutes::authenticate);
 
-            server.get("/admin", adminRoutes::dashboard);
-            server.get("/admin/browse", adminRoutes::browse);
-            server.get("/admin/browse/*", adminRoutes::browse);
+            ApiBuilder.get("/admin", adminRoutes::dashboard);
+            ApiBuilder.get("/admin/browse", adminRoutes::browse);
+            ApiBuilder.get("/admin/browse/*", adminRoutes::browse);
 
-            server.post("/api/admin/upload", adminRoutes::upload);
-            server.post("/api/admin/mkdir", adminRoutes::mkdir);
-            server.post("/api/admin/delete", adminRoutes::delete);
-            server.post("/api/admin/move", adminRoutes::move);
+            ApiBuilder.post("/api/admin/upload", adminRoutes::upload);
+            ApiBuilder.post("/api/admin/mkdir", adminRoutes::mkdir);
+            ApiBuilder.post("/api/admin/delete", adminRoutes::delete);
+            ApiBuilder.post("/api/admin/move", adminRoutes::move);
         }
 
-        server.get("/api/list", apiRoutes::list);
-        server.get("/api/list/*", apiRoutes::list);
-        server.get("/api/info/*", apiRoutes::info);
+        ApiBuilder.get("/api/list", apiRoutes::list);
+        ApiBuilder.get("/api/list/*", apiRoutes::list);
+        ApiBuilder.get("/api/info/*", apiRoutes::info);
     }
 
     public static void jsonRes(Context ctx, int status, boolean success, String message) {
