@@ -20,7 +20,7 @@ public class Main {
         try {
             logger.info("Starting Verteiler...");
 
-            Path configPath = Paths.get("config.toml");
+            Path configPath = Paths.get("config/config.toml");
             for (int i = 0; i < args.length; i++) {
                 if ((args[i].equals("-c") || args[i].equals("--config")) && i + 1 < args.length) {
                     configPath = Path.of(args[i + 1]);

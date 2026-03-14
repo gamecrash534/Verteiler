@@ -14,7 +14,7 @@ WORKDIR /app
 
 COPY --from=builder /build/target/Verteiler-*.jar verteiler.jar
 
-VOLUME ["/app/data", "/app/logs"]
+VOLUME ["/app/data", "/app/logs", "/app/config"]
 
 EXPOSE 2987
 
