@@ -56,6 +56,9 @@ public class Configuration {
     public final boolean minifyFiles;
 
     public Configuration(Path configPath) throws IOException {
+        String env_conf = System.getenv("VERTEILER_CONFIG");
+        if (env_conf != null) configPath = Path.of(env_conf);
+
         if (!Files.exists(configPath)) createDefaultConfig(configPath);
         toml = Toml.parse(configPath);
 

@@ -12,10 +12,10 @@ FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 
-COPY --from=builder /build/target/Verteiler-*.jar app.jar
+COPY --from=builder /build/target/Verteiler-*.jar verteiler.jar
 
 VOLUME ["/app/data", "/app/logs"]
 
 EXPOSE 2987
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "verteiler.jar"]
