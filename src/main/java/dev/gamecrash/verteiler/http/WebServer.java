@@ -97,7 +97,9 @@ public class WebServer {
             ctx.contentType("text/css").result(WebUI.getCSS(sheet));
         } else if (ctx.path().startsWith("/assets/js")) {
             String script = ctx.path().replace("/assets/js/", "").replace(".js", "");
-            ctx.contentType("text/css").result(WebUI.getJS(script));
+            ctx.contentType("text/javascript").result(WebUI.getJS(script));
+        } else if (ctx.path().startsWith("/favicon")) {
+            ctx.contentType("image/svg+xml").result(WebUI.getFavicon());
         }
     }
 }
