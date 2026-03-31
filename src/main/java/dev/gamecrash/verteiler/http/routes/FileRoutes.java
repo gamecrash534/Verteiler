@@ -7,6 +7,7 @@ import dev.gamecrash.verteiler.logging.Logger;
 import dev.gamecrash.verteiler.storage.FileEntry;
 import dev.gamecrash.verteiler.storage.FileStorage;
 import io.javalin.http.Context;
+import io.javalin.http.HttpStatus;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
@@ -27,7 +28,7 @@ public class FileRoutes {
     }
 
     public void index(Context ctx) {
-        ctx.redirect("/browse");
+        ctx.redirect("/browse", HttpStatus.MOVED_PERMANENTLY);
     }
 
     public void browse(Context ctx) throws IOException {
