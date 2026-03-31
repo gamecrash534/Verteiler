@@ -1,38 +1,38 @@
 [server]
-host = "0.0.0.0"                # The host IP to bind to
-port = 2987                     # The port to listen on
-data_directory = "./data"       # The directory where all files will be served from
+host = "0.0.0.0"
+port = 2987
+data_directory = "./data"
 
 [logging]
-level = "INFO"                  # The log level to output at
-log_access = true               # Defines if all requests and their paths + respones should be logged too
-log_to_file = false             # If logs should also be saved to a file
-log_directory = "./logs"        # The directory to save logs to. Will only be relevant if `log_to_file` is set to `true`
+level = "INFO"
+log_access = true
+log_to_file = false
+log_directory = "./logs"
 
 [admin]
-enabled = true                  # If the admin page / dashboard should be enabled
-token = "%s"                    # The login credential for the admin page. Will usually be auto-generated when the config will be created for the first time
+enabled = true
+token = "%s"
 
 [ui]
-title = "Verteiler"             # The page Title
-show_file_sizes = true          # Whether to show the size of a file
-show_dates = true               # Whether to show the last modified date of a file
-drag_drop_upload = true         # Whether to enable drag&drop uploads from the admin ui
-enable_preview = true           # Whether files like Audio/Video/Text/Images should be previewable
+title = "Verteiler"
+show_file_sizes = true
+show_dates = true
+drag_drop_upload = true
+enable_preview = true
 
 [ui.footer]
-enabled = true                  # If the footer should be visible
-show_credits = true             # If the [Served with Verteiler]-Tag should be shown
+enabled = true
+show_credits = true
 
 [ui.resources]
-use_custom_resources = false    # If custom resource should be enabled - allowing you to modify the look of the interface
-custom_resources_directory = "./web"    # Directory to save the custom resources to
+use_custom_resources = false
+custom_resources_directory = "./web"
 
 [security]
-allow_directory_listing = true  # If users should be able to browse the served files
-allowed_extensions = ""         # List of extensions that will be accepted when trying to upload a file from the admin interface
+allow_directory_listing = true
+allowed_extensions = ""
 
 [performance]
-enable_caching = true           # If the response should include cache control headers
-cache_max_age = 3600            # The maximum age set in the cache control headers, if enabled
-minify_files = true             # Whether the HTML, JS and CSS files should be minified - e.g. reduced of unneccessary spaces, saving bandwidth
+enable_caching = true
+cache_max_age = 3600
+minify_files = true
