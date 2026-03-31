@@ -11,6 +11,7 @@ import io.javalin.http.UploadedFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 public class AdminRoutes {
     private static final Logger logger = Logger.getInstance();
@@ -23,14 +24,15 @@ public class AdminRoutes {
     }
 
     public void authenticate(Context ctx) {
-        String token = ctx.queryParam("token");
-        token = token == null ? ctx.cookie("admin_token") : token;
+        String token = ctx.cookie("admin_token");
+        if (Set.of("/admin", "/admin/").contains(ctx.path().split("\\?")[0]) && token == null) token = ctx.queryParam("token");
+        System.out.println(token);
 
         if (token == null || !token.equals(config.adminToken)) {
-            ctx.status(401);
-            if (ctx.path().startsWith("/api")) WebServer.jsonRes(ctx, 401, false, "Unauthorized");
-            else ctx.html(WebUI.loginPage(config));
-            ctx.skipRemainingHandlers();
+            ctx.status(401)
+                .html(WebUI.loginPage(config))
+                .skipRemainingHandlers()
+                .removeCookie("admin_token");
             return;
         }
 

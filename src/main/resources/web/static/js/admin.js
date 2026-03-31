@@ -1,10 +1,4 @@
-let token = "";
 let currentPath = "";
-
-function getToken() {
-    const cookies = `; ${document.cookie}`;
-    token = cookies.split("; ").find(val => val.startsWith("admin_token")).substring("admin_token=".length, cookies.length - 1);
-}
 
 function getCurrentPath() {
     currentPath = window.location.pathname.split("/browse/")[1];
@@ -60,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
             e.preventDefault();
             const formData = new FormData(uploadForm);
             try {
-                const res = await fetch('/api/admin/upload?token=' + token, {method: 'POST', body: formData});
+                const res = await fetch('/api/admin/upload', {method: 'POST', body: formData});
                 const data = await res.json();
                 if (data.success) location.reload();
                 else alert(data.message);
@@ -77,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const name = mkdirForm.querySelector('input[name="name"]').value;
             const path = currentPath ? currentPath + '/' + name : name;
             try {
-                const res = await fetch('/api/admin/mkdir?token=' + token, {
+                const res = await fetch('/api/admin/mkdir', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                     body: 'path=' + encodeURIComponent(path)
@@ -101,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function () {
 async function deleteItem(path) {
     if (!confirm('Delete ' + path + '?')) return;
     try {
-        const res = await fetch('/api/admin/delete?token=' + token, {
+        const res = await fetch('/api/admin/delete', {
             method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             body: 'path=' + encodeURIComponent(path)
@@ -122,7 +116,7 @@ async function renameItem(path) {
     const dir = path.substring(0, path.length - name.length);
     const newPath = dir + newName;
     try {
-        const res = await fetch('/api/admin/move?token=' + token, {
+        const res = await fetch('/api/admin/move', {
             method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             body: 'from=' + encodeURIComponent(path) + '&to=' + encodeURIComponent(newPath)
@@ -143,4 +137,3 @@ function formatSize(bytes) {
 }
 
 window.onload = getCurrentPath;
-getToken();
