@@ -77,6 +77,9 @@ public class WebServer {
             ApiBuilder.get("/admin/browse/*", adminRoutes::browse);
 
             ApiBuilder.post("/api/admin/upload", adminRoutes::upload);
+            ApiBuilder.post("/api/admin/upload/chunked/start", adminRoutes::startChunkedUpload);
+            ApiBuilder.post("/api/admin/upload/chunked/chunk", adminRoutes::chunkedUpload);
+            ApiBuilder.post("/api/admin/upload/chunked/end", adminRoutes::endChunkedUpload);
             ApiBuilder.post("/api/admin/mkdir", adminRoutes::mkdir);
             ApiBuilder.post("/api/admin/delete", adminRoutes::delete);
             ApiBuilder.post("/api/admin/move", adminRoutes::move);

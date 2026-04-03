@@ -66,6 +66,18 @@ public class FileStorage {
         return toFileEntry(path);
     }
 
+    public FileEntry copy(String relativePath, Path existing) throws IOException {
+        Path path = resolvePath(relativePath);
+        Path parent = path.getParent();
+
+        if (!Files.exists(parent)) Files.createDirectories(parent);
+
+        Files.copy(existing, path, StandardCopyOption.REPLACE_EXISTING);
+        logger.info("Saved file {}", path);
+
+        return toFileEntry(path);
+    }
+
     public boolean delete(String relativePath) throws IOException {
         Path path = resolvePath(relativePath);
         if (!Files.exists(path)) return false;

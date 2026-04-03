@@ -31,6 +31,11 @@ public class Configuration {
     public final boolean adminEnabled;
     public final String adminToken;
 
+    // Admin, chunked uploads
+    public final boolean chunkedUploadsEnabled = true;
+    public final int chunkSize = 5 * 1024 * 1024;
+    public final Path tempUploadDirectory = Files.createTempDirectory("verteilerTmp");
+
     // UI
     public final String title;
     public final boolean showFileSizes;

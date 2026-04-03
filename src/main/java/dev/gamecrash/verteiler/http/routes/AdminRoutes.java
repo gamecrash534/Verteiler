@@ -4,19 +4,34 @@ import dev.gamecrash.verteiler.config.Configuration;
 import dev.gamecrash.verteiler.http.WebServer;
 import dev.gamecrash.verteiler.http.WebUI;
 import dev.gamecrash.verteiler.logging.Logger;
+import dev.gamecrash.verteiler.model.ChunkedUploadSession;
 import dev.gamecrash.verteiler.model.FileEntry;
 import dev.gamecrash.verteiler.storage.FileStorage;
+import dev.gamecrash.verteiler.util.Json;
 import io.javalin.http.Context;
 import io.javalin.http.UploadedFile;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class AdminRoutes {
     private static final Logger logger = Logger.getInstance();
     private final FileStorage fileStorage;
     private final Configuration config;
+
+    private final AtomicInteger chunkedUploadId = new AtomicInteger();
+    private final Map<Integer, ChunkedUploadSession> chunkedUploadSessions = new ConcurrentHashMap<>();
 
     public AdminRoutes(FileStorage fileStorage, Configuration config) {
         this.fileStorage = fileStorage;
@@ -96,6 +111,136 @@ public class AdminRoutes {
         }
 
         WebServer.jsonRes(ctx, 200, true, "uploaded " + uploaded + " file(s)");
+    }
+
+    public void startChunkedUpload(Context ctx) throws IOException {
+        if (!config.chunkedUploadsEnabled) {
+            WebServer.jsonRes(ctx, 400, false, "chunked uploads not enabled");
+            return;
+        }
+
+        String targetPath = ctx.formParam("path");
+        if (targetPath == null) targetPath = "";
+
+        String filename = ctx.formParam("filename");
+        if (filename == null) {
+            WebServer.jsonRes(ctx, 400, false, "filename required");
+            return;
+        }
+
+        if (config.allowedExtensions.length > 0) {
+            String ext = getExtension(filename);
+            boolean allowed = false;
+            for (String allowedExt : config.allowedExtensions) {
+                if (allowedExt.trim().equalsIgnoreCase(ext)) {
+                    allowed = true;
+                    break;
+                }
+            }
+
+            if (!allowed) {
+                logger.warn("rejected upload of {}; extension not allowed", filename);
+                return;
+            }
+        }
+
+        long totalSize = Long.parseLong(ctx.formParam("totalSize"));
+        int totalChunks = Integer.parseInt(ctx.formParam("totalChunks"));
+
+        int id = chunkedUploadId.getAndIncrement();
+        Path uploadDir = config.tempUploadDirectory.resolve(String.valueOf(id));
+
+        Files.createDirectories(uploadDir);
+        chunkedUploadSessions.put(id, new ChunkedUploadSession(targetPath, filename, totalSize, totalChunks, uploadDir));
+
+        ctx.status(200).contentType("application/json").result(Json.object("success", true, "message", "chunked upload ready",
+            "id", id, "chunkSize", config.chunkSize, "totalChunks", totalChunks
+        ));
+    }
+
+    public void chunkedUpload(Context ctx) throws IOException {
+        int id = Integer.valueOf(ctx.formParam("id"));
+        int chunkIdx = Integer.valueOf(ctx.formParam("chunkIndex"));
+
+        ChunkedUploadSession session = chunkedUploadSessions.get(id);
+        if (session == null) {
+            WebServer.jsonRes(ctx, 404, false, "upload session under given id not found");
+            return;
+        }
+
+        UploadedFile chunk = ctx.uploadedFile("chunk");
+        if (chunk == null) {
+            WebServer.jsonRes(ctx, 400, false, "chunk may not be null");
+            return;
+        }
+
+        if (chunkIdx != session.nextChunkIdx) {
+            WebServer.jsonRes(ctx, 400, false, "unexpected chunk index, should've been " + session.nextChunkIdx);
+            return;
+        }
+
+        long expectedRemaining = session.totalSize - session.receivedBytes;
+        long maxAllowed = Math.clamp(expectedRemaining, 0, config.chunkSize);
+
+        Path chunkPath = session.uploadDir.resolve(String.valueOf(chunkIdx));
+
+        try (InputStream input = chunk.content()) {
+            Files.copy(input, chunkPath, StandardCopyOption.REPLACE_EXISTING);
+        }
+
+        long actualSize = Files.size(chunkPath);
+        boolean isLastChunk = chunkIdx == session.totalChunks - 1;
+
+        if (actualSize > maxAllowed) {
+            Files.deleteIfExists(chunkPath);
+            WebServer.jsonRes(ctx, 413, false, "chunk too large; max: " + maxAllowed);
+            return;
+        }
+
+        if (!isLastChunk && actualSize != config.chunkSize) {
+            Files.deleteIfExists(chunkPath);
+            WebServer.jsonRes(ctx, 422, false, "chunk too large");
+        }
+
+        if (!isLastChunk && actualSize != expectedRemaining) {
+            Files.deleteIfExists(chunkPath);
+            WebServer.jsonRes(ctx, 422, false, "expected final chunk size mismatch");
+        }
+
+        session.receivedBytes += actualSize;
+        session.nextChunkIdx++;
+
+        WebServer.jsonRes(ctx, 200, true, "chunk received");
+    }
+
+    public void endChunkedUpload(Context ctx) throws IOException {
+        int id = Integer.parseInt(ctx.formParam("id"));
+
+        ChunkedUploadSession session = chunkedUploadSessions.get(id);
+        if (session == null) {
+            WebServer.jsonRes(ctx, 404, false, "upload session under given id not found");
+            return;
+        }
+
+        if (session.nextChunkIdx != session.totalChunks) {
+            WebServer.jsonRes(ctx, 409, false, "upload incomplete, " +
+                "received only " + session.nextChunkIdx + " of " + session.totalChunks + " expected chunks"
+            );
+            return;
+        }
+
+        String filePath = session.targetPath.isEmpty() ? session.filename : session.targetPath + "/" + session.filename;
+        Path merged = session.uploadDir.resolve("merged");
+        try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(merged))) {
+            for (int i = 0; i < session.totalChunks; i++) {
+                Path chunk = session.uploadDir.resolve(String.valueOf(i));
+                Files.copy(chunk, out);
+            }
+        }
+
+        fileStorage.copy(filePath, merged);
+
+        WebServer.jsonRes(ctx, 200, true, "uploaded 1 file");
     }
 
     public void mkdir(Context ctx) throws IOException {
