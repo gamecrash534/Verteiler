@@ -52,6 +52,12 @@ document.addEventListener('DOMContentLoaded', function () {
     if (uploadForm) {
         uploadForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            const files = Array.from(fileInput.files);
+            if (files.length === 0) {
+                alert('Files to upload may not be null');
+                return;
+            }
+
             const formData = new FormData(uploadForm);
             try {
                 const res = await fetch('/api/admin/upload', {method: 'POST', body: formData});
