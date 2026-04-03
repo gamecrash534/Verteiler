@@ -26,7 +26,6 @@ public class AdminRoutes {
     public void authenticate(Context ctx) {
         String token = ctx.cookie("admin_token");
         if (Set.of("/admin", "/admin/").contains(ctx.path().split("\\?")[0]) && token == null) token = ctx.queryParam("token");
-        System.out.println(token);
 
         if (token == null || !token.equals(config.adminToken)) {
             ctx.status(401)
