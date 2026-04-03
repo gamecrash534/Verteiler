@@ -11,6 +11,7 @@ import dev.gamecrash.verteiler.util.Json;
 import io.javalin.http.Context;
 import io.javalin.http.UploadedFile;
 
+import javax.lang.model.type.PrimitiveType;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -200,11 +201,13 @@ public class AdminRoutes {
         if (!isLastChunk && actualSize != config.chunkSize) {
             Files.deleteIfExists(chunkPath);
             WebServer.jsonRes(ctx, 422, false, "chunk too large");
+            return;
         }
 
-        if (!isLastChunk && actualSize != expectedRemaining) {
+        if (isLastChunk && actualSize != expectedRemaining) {
             Files.deleteIfExists(chunkPath);
             WebServer.jsonRes(ctx, 422, false, "expected final chunk size mismatch");
+            return;
         }
 
         session.receivedBytes += actualSize;
