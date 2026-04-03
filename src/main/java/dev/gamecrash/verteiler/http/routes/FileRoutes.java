@@ -4,14 +4,13 @@ import dev.gamecrash.verteiler.config.Configuration;
 import dev.gamecrash.verteiler.http.WebServer;
 import dev.gamecrash.verteiler.http.WebUI;
 import dev.gamecrash.verteiler.logging.Logger;
-import dev.gamecrash.verteiler.storage.FileEntry;
+import dev.gamecrash.verteiler.model.FileEntry;
 import dev.gamecrash.verteiler.storage.FileStorage;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;

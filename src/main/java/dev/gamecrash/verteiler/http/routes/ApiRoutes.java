@@ -2,8 +2,7 @@ package dev.gamecrash.verteiler.http.routes;
 
 import dev.gamecrash.verteiler.config.Configuration;
 import dev.gamecrash.verteiler.http.WebServer;
-import dev.gamecrash.verteiler.logging.Logger;
-import dev.gamecrash.verteiler.storage.FileEntry;
+import dev.gamecrash.verteiler.model.FileEntry;
 import dev.gamecrash.verteiler.storage.FileStorage;
 import dev.gamecrash.verteiler.util.Json;
 import io.javalin.http.Context;

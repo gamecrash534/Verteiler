@@ -1,9 +1,9 @@
 package dev.gamecrash.verteiler.storage;
 
 import dev.gamecrash.verteiler.logging.Logger;
+import dev.gamecrash.verteiler.model.FileEntry;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;

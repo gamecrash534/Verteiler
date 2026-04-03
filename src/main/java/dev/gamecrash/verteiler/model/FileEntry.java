@@ -1,4 +1,4 @@
-package dev.gamecrash.verteiler.storage;
+package dev.gamecrash.verteiler.model;
 
 import dev.gamecrash.verteiler.http.WebUI;
 

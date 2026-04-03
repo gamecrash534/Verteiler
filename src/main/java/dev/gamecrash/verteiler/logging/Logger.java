@@ -1,6 +1,7 @@
 package dev.gamecrash.verteiler.logging;
 
 import dev.gamecrash.verteiler.config.Configuration;
+import dev.gamecrash.verteiler.model.LogLevel;
 
 import java.io.IOException;
 import java.io.PrintStream;

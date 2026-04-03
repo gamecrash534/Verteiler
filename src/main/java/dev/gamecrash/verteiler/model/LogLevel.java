@@ -1,4 +1,4 @@
-package dev.gamecrash.verteiler.logging;
+package dev.gamecrash.verteiler.model;
 
 import static dev.gamecrash.verteiler.logging.Colors.*;
 

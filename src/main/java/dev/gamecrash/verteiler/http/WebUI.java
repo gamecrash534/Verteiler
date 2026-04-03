@@ -3,13 +3,12 @@ package dev.gamecrash.verteiler.http;
 import dev.gamecrash.verteiler.Main;
 import dev.gamecrash.verteiler.config.Configuration;
 import dev.gamecrash.verteiler.logging.Logger;
-import dev.gamecrash.verteiler.storage.FileEntry;
+import dev.gamecrash.verteiler.model.FileEntry;
 import dev.gamecrash.verteiler.storage.MimeTypes;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
