@@ -175,43 +175,45 @@ public class AdminRoutes {
             return;
         }
 
-        if (chunkIdx != session.nextChunkIdx) {
-            WebServer.jsonRes(ctx, 400, false, "unexpected chunk index, should've been " + session.nextChunkIdx);
-            return;
+        synchronized (session) {
+            if (chunkIdx != session.nextChunkIdx) {
+                WebServer.jsonRes(ctx, 400, false, "unexpected chunk index, should've been " + session.nextChunkIdx);
+                return;
+            }
+
+            long expectedRemaining = session.totalSize - session.receivedBytes;
+            long maxAllowed = Math.clamp(expectedRemaining, 0, config.chunkSize);
+
+            Path chunkPath = session.uploadDir.resolve(String.valueOf(chunkIdx));
+
+            try (InputStream input = chunk.content()) {
+                Files.copy(input, chunkPath, StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            long actualSize = Files.size(chunkPath);
+            boolean isLastChunk = chunkIdx == session.totalChunks - 1;
+
+            if (actualSize > maxAllowed) {
+                Files.deleteIfExists(chunkPath);
+                WebServer.jsonRes(ctx, 413, false, "chunk too large; max: " + maxAllowed);
+                return;
+            }
+
+            if (!isLastChunk && actualSize != config.chunkSize) {
+                Files.deleteIfExists(chunkPath);
+                WebServer.jsonRes(ctx, 422, false, "chunk too large");
+                return;
+            }
+
+            if (isLastChunk && actualSize != expectedRemaining) {
+                Files.deleteIfExists(chunkPath);
+                WebServer.jsonRes(ctx, 422, false, "expected final chunk size mismatch");
+                return;
+            }
+
+            session.receivedBytes += actualSize;
+            session.nextChunkIdx++;
         }
-
-        long expectedRemaining = session.totalSize - session.receivedBytes;
-        long maxAllowed = Math.clamp(expectedRemaining, 0, config.chunkSize);
-
-        Path chunkPath = session.uploadDir.resolve(String.valueOf(chunkIdx));
-
-        try (InputStream input = chunk.content()) {
-            Files.copy(input, chunkPath, StandardCopyOption.REPLACE_EXISTING);
-        }
-
-        long actualSize = Files.size(chunkPath);
-        boolean isLastChunk = chunkIdx == session.totalChunks - 1;
-
-        if (actualSize > maxAllowed) {
-            Files.deleteIfExists(chunkPath);
-            WebServer.jsonRes(ctx, 413, false, "chunk too large; max: " + maxAllowed);
-            return;
-        }
-
-        if (!isLastChunk && actualSize != config.chunkSize) {
-            Files.deleteIfExists(chunkPath);
-            WebServer.jsonRes(ctx, 422, false, "chunk too large");
-            return;
-        }
-
-        if (isLastChunk && actualSize != expectedRemaining) {
-            Files.deleteIfExists(chunkPath);
-            WebServer.jsonRes(ctx, 422, false, "expected final chunk size mismatch");
-            return;
-        }
-
-        session.receivedBytes += actualSize;
-        session.nextChunkIdx++;
 
         WebServer.jsonRes(ctx, 200, true, "chunk received");
     }
@@ -225,23 +227,25 @@ public class AdminRoutes {
             return;
         }
 
-        if (session.nextChunkIdx != session.totalChunks) {
-            WebServer.jsonRes(ctx, 409, false, "upload incomplete, " +
-                "received only " + session.nextChunkIdx + " of " + session.totalChunks + " expected chunks"
-            );
-            return;
-        }
-
         String filePath = session.targetPath.isEmpty() ? session.filename : session.targetPath + "/" + session.filename;
-        Path merged = session.uploadDir.resolve("merged");
-        try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(merged))) {
-            for (int i = 0; i < session.totalChunks; i++) {
-                Path chunk = session.uploadDir.resolve(String.valueOf(i));
-                Files.copy(chunk, out);
+        synchronized (session) {
+            if (session.nextChunkIdx != session.totalChunks) {
+                WebServer.jsonRes(ctx, 409, false, "upload incomplete, " +
+                    "received only " + session.nextChunkIdx + " of " + session.totalChunks + " expected chunks"
+                );
+                return;
             }
-        }
 
-        fileStorage.copy(filePath, merged);
+            Path merged = session.uploadDir.resolve("merged");
+            try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(merged))) {
+                for (int i = 0; i < session.totalChunks; i++) {
+                    Path chunk = session.uploadDir.resolve(String.valueOf(i));
+                    Files.copy(chunk, out);
+                }
+            }
+
+            fileStorage.copy(filePath, merged);
+        }
 
         WebServer.jsonRes(ctx, 200, true, "uploaded 1 file");
     }
