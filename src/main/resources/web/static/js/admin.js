@@ -59,7 +59,22 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             const formData = new FormData(uploadForm);
+            const chunkedUploads = formData.get("chunkedUploads") === "true";
+            const targetPath = formData.get("path") || "";
+
             try {
+                if (chunkedUploads) {
+                    const configuredChunkSize = Number(formData.get("chunkSize"));
+                    console.warn(configuredChunkSize)
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        await uploadChunkedFile(file, targetPath, configuredChunkSize);
+                    }
+                    location.reload();
+
+                    return;
+                }
+
                 const res = await fetch('/api/admin/upload', {method: 'POST', body: formData});
                 const data = await res.json();
                 if (data.success) location.reload();
@@ -132,6 +147,51 @@ async function renameItem(path) {
         else alert(data.message);
     } catch (err) {
         alert('Failed: ' + err.message);
+    }
+}
+
+async function uploadChunkedFile(file, path, chunkSize) {
+    const totalChunks = Math.max(1, Math.ceil(file.size / chunkSize));
+    const startData = new FormData();
+
+    startData.append("path", path);
+    startData.append("filename", file.name);
+    startData.append("totalSize", file.size);
+    startData.append("totalChunks", String(totalChunks));
+
+    const startRes = await (await fetch("/api/admin/upload/chunked/start", {method: "POST", body: startData})).json()
+    if (!startRes.success) {
+        alert("could not start chunked upload for " + file.name + "\n see console for more detail")
+        console.error("Could not start chunked upload", startRes);
+    }
+
+    const id = startRes.id;
+    for (let chunkIdx = 0; chunkIdx < totalChunks; chunkIdx++) {
+        const start = chunkIdx * chunkSize;
+        const end = Math.min(file.size, start + chunkSize);
+        const chunk = file.slice(start, end);
+
+        const data = new FormData();
+        data.append("id", id);
+        data.append("chunkIndex", chunkIdx);
+        data.append("chunk", chunk);
+
+        const chunkRes = await (await fetch("/api/admin/upload/chunked/chunk", { method: "POST", body: data })).json();
+
+        if (!chunkRes.success) {
+            alert("could not upload file chunk for " + file.name + "\n see console for more detail")
+            console.error("Could not upload chunk", chunkRes);
+        }
+    }
+
+    const endData = new FormData();
+    endData.append("id", id);
+
+    const endRes = await (await fetch("/api/admin/upload/chunked/end", { method: "POST", body: endData })).json();
+
+    if (!endRes.success) {
+        alert("could not end file chunk upload for " + file.name + "\n see console for more detail")
+        console.error("Could not end chunk upload ", endRes);
     }
 }
 

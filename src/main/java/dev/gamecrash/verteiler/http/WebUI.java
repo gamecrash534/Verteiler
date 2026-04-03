@@ -128,6 +128,8 @@ public class WebUI {
             .put("mkdirIcon", engine.getIcon("mkdir"))
             .put("editIcon", engine.getIcon("edit"))
             .put("trashIcon", engine.getIcon("trash"))
+            .put("chunkedUploads", config.chunkedUploadsEnabled)
+            .put("chunkSize", config.chunkSize)
             .build());
 
         return renderLayout(config, "admin - files", content, true, null);
