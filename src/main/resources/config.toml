@@ -13,6 +13,10 @@ log_directory = "./logs"
 enabled = true
 token = "%s"
 
+[admin.chunked_uploads]
+enabled = true
+chunk_size = 5242880 # 5 MiB
+
 [ui]
 title = "Verteiler"
 show_file_sizes = true

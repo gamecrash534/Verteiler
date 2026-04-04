@@ -30,6 +30,8 @@ config.
 | `logging.log_directory`                   | `VERTEILER_LOG_DIRECTORY`              | `./logs`               | The directory where logs should be saved (only relevant if `log_to_file` is set to `true`) |
 | `admin.enabled`                           | `VERTEILER_ADMIN_ENABLED`              | `true`                 | If the admin dashboard should be enabled                                                   |
 | `admin.token`                             | `VERTEILER_ADMIN_TOKEN`                | *auto-generated token* | The login token for the admin dashboard                                                    |
+| `admin.chunked_uploads.enabled`           | `VERTEILER_CHUNKED_UPLOADS_ENABLED`    | `true`                 | Whether or not file uploads should be split into chunks                                    |
+| `admin.chunked_uploads.chunk_size`        | `VERTEILER_CHUNK_SIZE`                 | `5242880`              | The size of a chunk in bytes. Only used when chunked uploads are enabled                   |
 | `ui.title`                                | `VERTEILER_TITLE`                      | `Verteiler`            | The page title                                                                             |
 | `ui.show_file_sizes`                      | `VERTEILER_SHOW_FILE_SIZES`            | `true`                 | Whether to show the size of a file entry                                                   |
 | `ui.show_dates`                           | `VERTEILER_SHOW_DATES`                 | `true`                 | Whether to show the upload date of a file entry                                            |

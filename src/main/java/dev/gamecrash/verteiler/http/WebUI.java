@@ -5,7 +5,6 @@ import dev.gamecrash.verteiler.config.Configuration;
 import dev.gamecrash.verteiler.logging.Logger;
 import dev.gamecrash.verteiler.model.FileEntry;
 import dev.gamecrash.verteiler.storage.MimeTypes;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,7 +52,7 @@ public class WebUI {
             .build()
         );
 
-        return renderLayout(config, path.isEmpty() ? "files" : path, content, isAdmin, null);
+        return renderLayout(config, path.isEmpty() ? "files" : path, content, isAdmin);
     }
 
     public static String previewFile(Configuration config, FileEntry entry, String path, boolean isAdmin) {
@@ -75,13 +74,13 @@ public class WebUI {
             .put("externalIcon", engine.getIcon("external"))
             .build());
 
-        return renderLayout(config, entry.name(), content, isAdmin, null);
+        return renderLayout(config, entry.name(), content, isAdmin);
     }
 
     public static String loginPage(Configuration config) {
         String content = engine.render("login", TemplateEngine.context().build());
 
-        return renderLayout(config, "Login", content, false, null);
+        return renderLayout(config, "Login", content, false);
     }
 
     public static String dashboard(Configuration config, long totalSize, long fileItems, long directoryItems) {
@@ -93,7 +92,7 @@ public class WebUI {
             .build()
         );
 
-        return renderLayout(config, "admin", content, true, null);
+        return renderLayout(config, "admin", content, true);
     }
 
     public static String adminBrowse(Configuration config, String path, List<FileEntry> entries) {
@@ -132,7 +131,7 @@ public class WebUI {
             .put("chunkSize", config.chunkSize)
             .build());
 
-        return renderLayout(config, "admin - files", content, true, null);
+        return renderLayout(config, "admin - files", content, true);
     }
 
     public static String error404(Configuration config, String message, boolean isAdmin) {
@@ -150,16 +149,15 @@ public class WebUI {
                 .build()
         );
 
-        return renderLayout(config, code, content, isAdmin, null);
+        return renderLayout(config, code, content, isAdmin);
     }
 
 
-    private static String renderLayout(Configuration config, String title, String content, boolean isAdmin, @Nullable String scripts) {
+    private static String renderLayout(Configuration config, String title, String content, boolean isAdmin) {
         return engine.render("layout", TemplateEngine.context()
             .put("title", title)
             .put("appName", config.title)
             .put("content", content)
-            .put("scripts", scripts)
             .put("showFooter", config.footerEnabled)
             .put("showCredits", config.showCredits)
             .put("isAdmin", isAdmin)

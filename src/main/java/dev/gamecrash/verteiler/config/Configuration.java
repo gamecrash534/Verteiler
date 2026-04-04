@@ -32,9 +32,9 @@ public class Configuration {
     public final String adminToken;
 
     // Admin, chunked uploads
-    public final boolean chunkedUploadsEnabled = true;
-    public final int chunkSize = 5 * 1024 * 1024;
-    public final Path tempUploadDirectory = Files.createTempDirectory("verteilerTmp");
+    public final boolean chunkedUploadsEnabled;
+    public final long chunkSize;
+    public final Path tempUploadDirectory;
 
     // UI
     public final String title;
@@ -67,6 +67,8 @@ public class Configuration {
         if (!Files.exists(configPath)) createDefaultConfig(configPath);
         toml = Toml.parse(configPath);
 
+        tempUploadDirectory = Files.createTempDirectory("verteiler");
+
         host = getString("server.host", "VERTEILER_HOST", "0.0.0.0");
         port = getInt("server.port", "VERTEILER_PORT", 2987);
         dataDirectory = getString("server.data_directory", "VERTEILER_DATA_DIRECTORY", "./data");
@@ -78,6 +80,9 @@ public class Configuration {
 
         adminEnabled = getBoolean("admin.enabled", "VERTEILER_ADMIN_ENABLED", true);
         adminToken = getString("admin.token", "VERTEILER_ADMIN_TOKEN", generateToken());
+
+        chunkedUploadsEnabled = getBoolean("admin.chunked_uploads.enabled", "VERTEILER_CHUNKED_UPLOADS_ENABLED", true);
+        chunkSize = getLong("admin.chunked_uploads.chunk_size", "VERTEILER_CHUNK_SIZE", 5 * 1024 * 1024);
 
         title = getString("ui.title", "VERTEILER_TITLE", "Verteiler");
         showFileSizes = getBoolean("ui.show_file_sizes", "VERTEILER_SHOW_FILE_SIZES", true);
@@ -130,14 +135,17 @@ public class Configuration {
         return tomlValue != null ? tomlValue : defaultValue;
     }
 
-    private int getInt(String key, String envVar, int defaultValue) {
+    private long getLong(String key, String envVar, long defaultValue) {
         String envValue = System.getenv(envVar);
         if (envValue != null) try {
-            return Integer.parseInt(envValue);
+            return Long.parseLong(envValue);
         } catch (NumberFormatException ignored) { }
         Long tomlValue = toml.getLong(key);
-        if (tomlValue != null) return tomlValue.intValue();
-        return defaultValue;
+        return tomlValue == null ? defaultValue : tomlValue;
+    }
+
+    private int getInt(String key, String envVar, int defaultValue) {
+        return (int) getLong(key, envVar, defaultValue);
     }
 
     private boolean getBoolean(String key, String envVar, boolean defaultValue) {
