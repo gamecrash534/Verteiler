@@ -35,6 +35,7 @@ public class Configuration {
     public final boolean chunkedUploadsEnabled;
     public final long chunkSize;
     public final Path tempUploadDirectory;
+    public final long uploadSessionTtl;
 
     // UI
     public final String title;
@@ -83,6 +84,7 @@ public class Configuration {
 
         chunkedUploadsEnabled = getBoolean("admin.chunked_uploads.enabled", "VERTEILER_CHUNKED_UPLOADS_ENABLED", true);
         chunkSize = getLong("admin.chunked_uploads.chunk_size", "VERTEILER_CHUNK_SIZE", 5 * 1024 * 1024);
+        uploadSessionTtl = getLong("admin.chunked_uploads.session_ttl", "VERTEILER_SESSION_TTL", 15 * 60 * 1000);
 
         title = getString("ui.title", "VERTEILER_TITLE", "Verteiler");
         showFileSizes = getBoolean("ui.show_file_sizes", "VERTEILER_SHOW_FILE_SIZES", true);

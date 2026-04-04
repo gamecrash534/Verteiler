@@ -16,6 +16,7 @@ token = "%s"
 [admin.chunked_uploads]
 enabled = true
 chunk_size = 5242880 # 5 MiB
+session_ttl = 900000 # 15 min
 
 [ui]
 title = "Verteiler"

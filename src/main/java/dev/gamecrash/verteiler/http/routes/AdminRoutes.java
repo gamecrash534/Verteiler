@@ -104,6 +104,8 @@ public class AdminRoutes {
     }
 
     public void startChunkedUpload(Context ctx) throws IOException {
+        clearStaleSessions();
+
         if (!config.chunkedUploadsEnabled) {
             WebServer.jsonRes(ctx, 400, false, "chunked uploads not enabled");
             return;
@@ -199,6 +201,7 @@ public class AdminRoutes {
 
             session.receivedBytes += actualSize;
             session.nextChunkIdx++;
+            session.lastChange = System.currentTimeMillis();
         }
 
         WebServer.jsonRes(ctx, 200, true, "chunk received");
@@ -235,6 +238,15 @@ public class AdminRoutes {
             }
 
             fileStorage.copy(filePath, merged);
+
+            if (session.isStale(config.uploadSessionTtl)) {
+                try {
+                    session.removeTempData();
+                    chunkedUploadSessions.remove(id);
+                } catch (IOException e) {
+                    logger.warn("could not remove temp directory {}", session.uploadDir.toString());
+                }
+            }
         }
 
         WebServer.jsonRes(ctx, 200, true, "uploaded 1 file");
@@ -320,5 +332,18 @@ public class AdminRoutes {
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+
+    private void clearStaleSessions() {
+        chunkedUploadSessions.forEach((id, session) -> {
+            if (session.isStale(config.uploadSessionTtl)) {
+                try {
+                    session.removeTempData();
+                    chunkedUploadSessions.remove(id);
+                } catch (IOException e) {
+                    logger.warn("could not remove temp directory {}", session.uploadDir.toString());
+                }
+            }
+        });
     }
 }
