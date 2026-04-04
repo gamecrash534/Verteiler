@@ -334,16 +334,14 @@ public class AdminRoutes {
         }
     }
 
-    private void clearStaleSessions() {
-        chunkedUploadSessions.forEach((id, session) -> {
-            if (session.isStale(config.uploadSessionTtl)) {
-                try {
-                    session.removeTempData();
-                    chunkedUploadSessions.remove(id);
-                } catch (IOException e) {
-                    logger.warn("could not remove temp directory {}", session.uploadDir.toString());
-                }
+    private void clearStaleSessions() throws IOException {
+        for (Map.Entry<Integer, ChunkedUploadSession> entry : chunkedUploadSessions.entrySet()) {
+            ChunkedUploadSession session = entry.getValue();
+            synchronized (session) {
+                if (!session.isStale(config.uploadSessionTtl)) return;
+                session.removeTempData();
+                chunkedUploadSessions.remove(entry.getKey());
             }
-        });
+        }
     }
 }
