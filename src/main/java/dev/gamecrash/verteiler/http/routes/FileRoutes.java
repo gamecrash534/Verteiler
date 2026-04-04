@@ -122,7 +122,6 @@ public class FileRoutes {
         Path filePath = fileStorage.getAbsolutePath(path);
         var response = ctx.res();
 
-
         response.setContentType(entry.mimeType());
         response.setHeader("Accept-Ranges", "bytes");
         response.setHeader("Cache-Control", config.enableCaching ? "public, s-maxage=" + config.cacheMaxAge + ", max-age=0, must-revalidate" : "no-store");

@@ -10,8 +10,8 @@ import dev.gamecrash.verteiler.storage.FileStorage;
 import dev.gamecrash.verteiler.util.Json;
 import io.javalin.http.Context;
 import io.javalin.http.UploadedFile;
+import org.jetbrains.annotations.Nullable;
 
-import javax.lang.model.type.PrimitiveType;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +19,6 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -92,19 +91,9 @@ public class AdminRoutes {
         for (UploadedFile file : files) {
             String filePath = targetPath.isEmpty() ? file.filename() : targetPath + "/" + file.filename();
 
-            if (config.allowedExtensions.length > 0) {
-                String ext = getExtension(file.filename());
-                boolean allowed = false;
-                for (String allowedExt : config.allowedExtensions) {
-                    if (allowedExt.trim().equalsIgnoreCase(ext)) {
-                        allowed = true;
-                        break;
-                    }
-                }
-                if (!allowed) {
-                    logger.warn("rejected upload of {}; extension not allowed", file.filename());
-                    continue;
-                }
+            if (!isExtensionAllowed(file.filename())) {
+                WebServer.jsonRes(ctx, 400, false, "file extension forbidden");
+                continue;
             }
 
             fileStorage.save(filePath, file.content());
@@ -129,24 +118,17 @@ public class AdminRoutes {
             return;
         }
 
-        if (config.allowedExtensions.length > 0) {
-            String ext = getExtension(filename);
-            boolean allowed = false;
-            for (String allowedExt : config.allowedExtensions) {
-                if (allowedExt.trim().equalsIgnoreCase(ext)) {
-                    allowed = true;
-                    break;
-                }
-            }
-
-            if (!allowed) {
-                logger.warn("rejected upload of {}; extension not allowed", filename);
-                return;
-            }
+        if (!isExtensionAllowed(filename)) {
+            WebServer.jsonRes(ctx, 400, false, "file extension forbidden");
+            return;
         }
 
-        long totalSize = Long.parseLong(ctx.formParam("totalSize"));
-        int totalChunks = Integer.parseInt(ctx.formParam("totalChunks"));
+        Long totalSize = parseLong(ctx.formParam("totalSize"));
+        Integer totalChunks = parseInt(ctx.formParam("totalChunks"));
+        if (totalSize == null || totalChunks == null) {
+            WebServer.jsonRes(ctx, 400, false, "missing 'totalSize' or 'totalChunks' parameters");
+            return;
+        }
 
         int id = chunkedUploadId.getAndIncrement();
         Path uploadDir = config.tempUploadDirectory.resolve(String.valueOf(id));
@@ -160,8 +142,12 @@ public class AdminRoutes {
     }
 
     public void chunkedUpload(Context ctx) throws IOException {
-        int id = Integer.valueOf(ctx.formParam("id"));
-        int chunkIdx = Integer.valueOf(ctx.formParam("chunkIndex"));
+        Integer id = parseInt(ctx.formParam("id"));
+        Integer chunkIdx = parseInt(ctx.formParam("chunkIndex"));
+        if (id == null || chunkIdx == null) {
+            WebServer.jsonRes(ctx, 400, false, "missing 'id' or 'chunkIndex' parameters");
+            return;
+        }
 
         ChunkedUploadSession session = chunkedUploadSessions.get(id);
         if (session == null) {
@@ -219,7 +205,11 @@ public class AdminRoutes {
     }
 
     public void endChunkedUpload(Context ctx) throws IOException {
-        int id = Integer.parseInt(ctx.formParam("id"));
+        Integer id = parseInt(ctx.formParam("id"));
+        if (id == null) {
+            WebServer.jsonRes(ctx, 400, false, "Missing 'id' parameter");
+            return;
+        }
 
         ChunkedUploadSession session = chunkedUploadSessions.get(id);
         if (session == null) {
@@ -295,8 +285,40 @@ public class AdminRoutes {
         return path.isEmpty() ? "" : path;
     }
 
+    private boolean isExtensionAllowed(String filename) {
+        if (config.allowedExtensions.length == 0) return true;
+        String ext = getExtension(filename);
+
+        for (String allowedExt : config.allowedExtensions) {
+            if (allowedExt.trim().equalsIgnoreCase(ext)) return true;
+        }
+
+        logger.warn("rejected upload of {}; extension not allowed", filename);
+        return false;
+    }
+
     private String getExtension(String filename) {
         int dot = filename.lastIndexOf('.');
         return dot > 0 ? filename.substring(dot + 1) : "";
+    }
+
+    @Nullable
+    private Integer parseInt(String value) {
+        if (value == null) return null;
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    @Nullable
+    private Long parseLong(String value) {
+        if (value == null) return null;
+        try {
+            return Long.parseLong(value);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 }
