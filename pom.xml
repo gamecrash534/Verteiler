@@ -6,7 +6,7 @@
 
     <groupId>dev.gamecrash</groupId>
     <artifactId>Verteiler</artifactId>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -46,6 +46,8 @@
                     <archive>
                         <manifest>
                             <mainClass>dev.gamecrash.verteiler.Main</mainClass>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
                         </manifest>
                     </archive>
                 </configuration>

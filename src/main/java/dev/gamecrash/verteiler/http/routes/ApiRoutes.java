@@ -44,19 +44,8 @@ public class ApiRoutes {
                 .result(Json.object("success", true, "data", "empty"));
             return;
         }
-        Object[] entryObjects = entries.stream()
-                .map(e -> Map.of(
-                    "name", e.name(),
-                    "path", e.path(),
-                    "isDirectory", e.isDirectory(),
-                    "size", e.size(),
-                    "lastModified", e.lastModified().toString(),
-                    "mimeType", e.mimeType() != null ? e.mimeType() : ""
-                ))
-                .toArray();
-
         ctx.contentType("application/json")
-            .result(Json.object("success", true, "data", Map.of("path", path, "entries", entryObjects)));
+            .result(Json.object("success", true, "data", Json.object("path", path, "entries", entries)));
     }
 
     public void info(Context ctx) throws IOException {
@@ -69,17 +58,7 @@ public class ApiRoutes {
         }
 
         ctx.contentType("application/json")
-            .result(Json.object(
-                "success", true,
-                "data", Map.of(
-                    "name", entry.name(),
-                    "path", entry.path(),
-                    "isDirectory", entry.isDirectory(),
-                    "size", entry.size(),
-                    "lastModified", entry.lastModified().toString(),
-                    "mimeType", entry.mimeType() != null ? entry.mimeType() : ""
-                )
-            ));
+            .result(Json.object("success", true, "data", entry));
     }
 
     private String getPathFromContext(Context ctx, String prefix) {
@@ -88,6 +67,6 @@ public class ApiRoutes {
         if (path.startsWith("/")) path = path.substring(1);
         path = path.replaceAll("%20", " ");
 
-        return path.isEmpty() ? "" : path;
+        return path.isEmpty() ? "/" : path;
     }
 }

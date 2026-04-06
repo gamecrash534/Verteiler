@@ -1,6 +1,7 @@
 package dev.gamecrash.verteiler.util;
-
 import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 
 public class Json {
     public static String object(Object... keyValues) {
@@ -37,8 +38,17 @@ public class Json {
 
     private static void stringifyTo(StringBuilder builder, Object object) {
         if (object == null) builder.append("null");
-        else if (object instanceof String str) escapeStringTo(builder, str);
+        else if (object instanceof String str && !str.startsWith("{")) escapeStringTo(builder, str);
         else if (object instanceof Number || object instanceof Boolean) builder.append(object);
         else if (object instanceof Instant instant) escapeStringTo(builder, instant.toString());
+        else if (object instanceof List<?> list) {
+            builder.append("[");
+            for (Object entry : list) {
+                stringifyTo(builder, entry);
+                if (!(list.indexOf(entry) == list.size() - 1)) builder.append(", ");
+            }
+            builder.append("]");
+        }
+        else builder.append(object);
     }
 }

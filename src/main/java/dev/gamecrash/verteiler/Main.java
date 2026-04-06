@@ -18,7 +18,7 @@ public class Main {
     public static void main(String[] args) {
         logger = Logger.getInstance();
         try {
-            logger.info("Starting Verteiler...");
+            logger.info("Starting Verteiler (Version " + Main.class.getPackage().getImplementationVersion() + ")...");
 
             Path configPath = Paths.get("config/config.toml");
             for (int i = 0; i < args.length; i++) {
