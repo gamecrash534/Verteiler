@@ -57,6 +57,102 @@ config.
 > [!NOTE]
 > If there are any issues with using custom web resources, it might help turning off the `performance.minify_files` setting.
 
+## API
+There are also API endpoints available, to get files, their information, and browse directories.
+
+The (probably) most important one is `/raw/<path>`. This will then directly return the contents of the file at the given path.
+
+There are also:
+
+`/api/list/<path>`, to list the contents of the given directory. The output will be a JSON looking like this, but less pretty:
+
+`curl 0.0.0.0:2987/api/list/http/`
+```json
+{
+  "success":true,
+  "data":{
+    "path":"http",
+    "entries":[
+      {
+        "name":"routes",
+        "path":"http/routes",
+        "directory":true,
+        "size":0,
+        "lastModified":1775508231,
+        "mimeType":""
+      },
+      {
+        "name":"TemplateEngine.java",
+        "path":"http/TemplateEngine.java",
+        "directory":false,
+        "size":4742,
+        "lastModified":1775319806,
+        "mimeType":"text/x-java-source"
+      },
+      {
+        "name":"WebServer.java",
+        "path":"http/WebServer.java",
+        "directory":false,
+        "size":4806,
+        "lastModified":1775500704,
+        "mimeType":"text/x-java-source"
+      },
+      {
+        "name":"WebUI.java",
+        "path":"http/WebUI.java",
+        "directory":false,
+        "size":10775,
+        "lastModified":1775499489,
+        "mimeType":"text/x-java-source"
+      }
+    ]
+  }
+}
+```
+or:
+```json
+{
+   "success":true,
+   "data":"empty"
+}
+```
+
+and `/api/info/<path>`, which will result in a similar output like above:
+
+`curl 0.0.0.0:2987/api/info/http`
+```json
+{
+  "success":true,
+  "data":{
+    "name":"http",
+    "path":"http",
+    "directory":true,
+    "size":0,
+    "lastModified":1775508475,
+    "mimeType":""
+  }
+}
+```
+the same also works for files.
+
+### Error Messages:
+
+`HTTP Status: 404 Not Found` will occur when a file / directory does not exist at the given path
+```json
+{
+   "success":false,
+   "message":"path not found"
+}
+```
+
+`HTTP Status: 400 Bad Request` will only occur when trying to `/api/list` a file
+```json
+{
+   "success":false,
+   "message":"not a directory"
+}
+```
+
 ## Building
 ... is as straightforward as with any simple maven project. You can simply run `mvn clean package`, and it will output a `Verteiler-[VERSION].jar` file
 under `target/`.
