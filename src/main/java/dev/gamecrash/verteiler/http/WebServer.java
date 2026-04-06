@@ -88,6 +88,7 @@ public class WebServer {
         ApiBuilder.get("/api/list", apiRoutes::list);
         ApiBuilder.get("/api/list/*", apiRoutes::list);
         ApiBuilder.get("/api/info/*", apiRoutes::info);
+        if (config.rootUriAsRawUri) ApiBuilder.get("/*", fileRoutes::raw);
     }
 
     public static void jsonRes(Context ctx, int status, boolean success, String message) {

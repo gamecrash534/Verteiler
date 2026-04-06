@@ -131,7 +131,7 @@ public class WebUI {
             .put("chunkSize", config.chunkSize)
             .build());
 
-        return renderLayout(config, "admin - files", content, true);
+        return renderLayout(config, "admin / files", content, true);
     }
 
     public static String error404(Configuration config, String message, boolean isAdmin) {

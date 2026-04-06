@@ -20,6 +20,7 @@ public class Configuration {
     public final String host;
     public final int port;
     public final String dataDirectory;
+    public final boolean rootUriAsRawUri;
 
     // Logging
     public final String logLevel;
@@ -73,6 +74,7 @@ public class Configuration {
         host = getString("server.host", "VERTEILER_HOST", "0.0.0.0");
         port = getInt("server.port", "VERTEILER_PORT", 2987);
         dataDirectory = getString("server.data_directory", "VERTEILER_DATA_DIRECTORY", "./data");
+        rootUriAsRawUri = getBoolean("server.root_path_as_raw_path", "VERTEILER_ROOT_AS_RAW", false);
 
         logLevel = getString("logging.level", "VERTEILER_LOG_LEVEL", "INFO");
         logAccess = getBoolean("logging.log_access", "VERTEILER_LOG_ACCESS", true);

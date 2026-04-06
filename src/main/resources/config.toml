@@ -2,6 +2,7 @@
 host = "0.0.0.0"
 port = 2987
 data_directory = "./data"
+root_path_as_raw_path = false
 
 [logging]
 level = "INFO"

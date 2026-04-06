@@ -68,7 +68,7 @@ public class FileRoutes {
     }
 
     public void raw(Context ctx) throws IOException {
-        String path = getPathFromContext(ctx, "/raw");
+        String path = ctx.path().startsWith("/raw") ? getPathFromContext(ctx, "/raw") : getPathFromContext(ctx, "/");
 
         if (!fileStorage.exists(path)) {
             WebServer.jsonRes(ctx, 404, false, "path not found");
