@@ -1,0 +1,16 @@
+when:
+  event: [release]
+  branch: master
+
+steps:
+  - name: build
+    image: maven:3:9-eclipse-temurin-21-alpine
+    commands:
+      - mvn package -DskipTests
+  - name: publish release artifacts
+    image: woodpeckerci/plugin-release
+    settings:
+      api-key:
+        from_secret: reg_repo_w
+      files:
+        - target/*.jar

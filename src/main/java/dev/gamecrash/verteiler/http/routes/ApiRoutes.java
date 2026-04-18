@@ -47,7 +47,7 @@ public class ApiRoutes {
 
         List<FileEntry> entries = fileStorage.list(path);
         if (entries.isEmpty()) {
-            ctx.contentType("application/json")
+            ctx.status(404).contentType("application/json")
                 .result(Json.object("success", true, "data", "empty"));
             return;
         }
