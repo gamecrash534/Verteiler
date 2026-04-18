@@ -8,6 +8,7 @@ import dev.gamecrash.verteiler.storage.MimeTypes;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -208,8 +209,8 @@ public class WebUI {
     public static byte[] getFavicon() {
         if (icon.length > 0) return icon;
 
-        try (InputStream stream = Main.class.getClassLoader().getResourceAsStream("web/static/favicon.png")) {
-            if (stream == null) return null;
+        try (InputStream stream = Main.class.getClassLoader().getResourceAsStream("web/static/favicon.svg")) {
+            if (stream == null) return "<!--error loading favicon-->".getBytes(StandardCharsets.UTF_8);
             return icon = stream.readAllBytes();
         } catch (IOException e) {
             Logger.getInstance().error("Could not load favicon", e);

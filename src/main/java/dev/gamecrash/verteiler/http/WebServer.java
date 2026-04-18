@@ -58,7 +58,7 @@ public class WebServer {
 
         ApiBuilder.get("/assets/css/*", WebServer::webResource);
         ApiBuilder.get("/assets/js/*",  WebServer::webResource);
-        ApiBuilder.get("/favicon.ico",  WebServer::webResource);
+        ApiBuilder.get("/favicon.svg",  WebServer::webResource);
 
         ApiBuilder.get("/", fileRoutes::index);
         ApiBuilder.get("/browse", fileRoutes::browse);
@@ -102,7 +102,7 @@ public class WebServer {
         } else if (ctx.path().startsWith("/assets/js")) {
             String script = ctx.path().replace("/assets/js/", "").replace(".js", "");
             ctx.contentType("text/javascript").result(WebUI.getJS(script));
-        } else if (ctx.path().startsWith("/favicon")) {
+        } else if (ctx.path().startsWith("/favicon.svg")) {
             ctx.contentType("image/svg+xml").result(WebUI.getFavicon());
         }
     }
