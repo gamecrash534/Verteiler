@@ -1,9 +1,11 @@
 package dev.gamecrash.verteiler.http.routes;
 
+import dev.gamecrash.verteiler.Main;
 import dev.gamecrash.verteiler.config.Configuration;
 import dev.gamecrash.verteiler.http.WebServer;
 import dev.gamecrash.verteiler.model.FileEntry;
 import dev.gamecrash.verteiler.storage.FileStorage;
+import dev.gamecrash.verteiler.storage.MimeTypes;
 import dev.gamecrash.verteiler.util.Json;
 import io.javalin.http.Context;
 
@@ -18,6 +20,11 @@ public class ApiRoutes {
     public ApiRoutes(FileStorage fileStorage, Configuration config) {
         this.fileStorage = fileStorage;
         this.config = config;
+    }
+
+    public void health(Context ctx) {
+        ctx.status(200).contentType("application/json")
+            .result("{\"success\":true,\"timestamp\":" + System.currentTimeMillis() + "}");
     }
 
     public void list(Context ctx) throws IOException {

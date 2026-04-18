@@ -56,6 +56,8 @@ public class WebServer {
         AdminRoutes adminRoutes = new AdminRoutes(fileStorage, config);
         ApiRoutes apiRoutes = new ApiRoutes(fileStorage, config);
 
+        ApiBuilder.get("/api/health", apiRoutes::health);
+
         ApiBuilder.get("/assets/css/*", WebServer::webResource);
         ApiBuilder.get("/assets/js/*",  WebServer::webResource);
         ApiBuilder.get("/favicon.svg",  WebServer::webResource);
