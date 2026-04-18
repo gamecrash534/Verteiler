@@ -6,7 +6,7 @@ steps:
   - name: build
     image: maven:3:9-eclipse-temurin-21-alpine
     commands:
-      - mvn package -DskipTests
+      - mvn -B package -DskipTests
   - name: publish release artifacts
     image: woodpeckerci/plugin-release
     settings:
