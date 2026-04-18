@@ -9,6 +9,8 @@ import dev.gamecrash.verteiler.model.FileEntry;
 import dev.gamecrash.verteiler.storage.FileStorage;
 import dev.gamecrash.verteiler.util.Json;
 import io.javalin.http.Context;
+import io.javalin.http.Cookie;
+import io.javalin.http.SameSite;
 import io.javalin.http.UploadedFile;
 import org.jetbrains.annotations.Nullable;
 
@@ -50,7 +52,7 @@ public class AdminRoutes {
             return;
         }
 
-        ctx.cookie("admin_token", token, 604800 * 7);
+        ctx.cookie(new Cookie("admin_token", token, "/", 604800 * 7, true, true, "", SameSite.STRICT));
     }
 
     public void dashboard(Context ctx) throws IOException {
