@@ -3,9 +3,17 @@ A small software providing a simple file browser to quickly share and distribute
 
 ## Usage
 ### Installation
-Probably the best way to run this software is through the docker container: `git.gamecrash.dev/game.crash/verteiler:latest`
+Probably the best way to run this software is through the docker container:
+```shell
+docker pull git.gamecrash.dev/game.crash/verteiler:[VERSION]
+```
+All available and valid docker versions can be found [here](https://git.gamecrash.dev/game.crash/-/packages/container/verteiler/versions).
 
-If you want to run it from the blank jar, you need to build it yourself - as there is currently no up-to-date version of the jar being uploaded.
+> [!IMPORTANT]
+> The `latest`-Tag has been deprecated for a list of reasons, starting with version `1.3.0`.
+> Please use either the major, minor or patch versions as a tag. Examples for working versions: `verteiler:1`, `verteiler:1.3`, `verteiler:1.3.0`
+
+For the blank JAR files, please visit the releases section [here](https://git.gamecrash.dev/game.crash/Verteiler/releases).
 
 ### Configuration
 Once run, this program will automatically generate a configuration file. You can, however, also point it to a custom configuration file by either setting
@@ -60,13 +68,27 @@ config.
 ## API
 There are also API endpoints available, to get files, their information, and browse directories.
 
-The (probably) most important one is `/raw/<path>`. This will then directly return the contents of the file at the given path.
+The (probably) most important one is `/raw/<path>`. This will then directly return the contents of the file at the given path, also enabling the possibility
+to serve files for use in other applications.
 
 There are also:
 
-`/api/list/<path>`, to list the contents of the given directory. The output will be a JSON looking like this, but less pretty:
+`/api/health`, as a dedicated endpoint, e.g. for uptime monitors.
+
+`curl 0.0.0.0:2987/api/health`
+\> `HTTP 200 OK`
+```json
+{
+  "success" : true,
+  "timestamp":  1776546140603
+}
+```
+
+`/api/list/<path>`, to list the contents of the given directory. The output will be a JSON looking like this, but less pretty, like for the other endpoints:
 
 `curl 0.0.0.0:2987/api/list/http/`
+\> `HTTP 200 OK`
+
 ```json
 {
   "success":true,
@@ -109,7 +131,10 @@ There are also:
   }
 }
 ```
-or:
+it may also produce this result, whether the directory is empty:
+
+`curl 0.0.0.0:2987/api/list/`
+\> `HTTP 404 Not Found`
 ```json
 {
    "success":true,
@@ -117,9 +142,10 @@ or:
 }
 ```
 
-and `/api/info/<path>`, which will result in a similar output like above:
+For getting more information about a file or directory, you may use `/api/info/<path>`, which will result in a similar output like above:
 
 `curl 0.0.0.0:2987/api/info/http`
+\> `HTTP 200 OK`
 ```json
 {
   "success":true,
@@ -133,11 +159,10 @@ and `/api/info/<path>`, which will result in a similar output like above:
   }
 }
 ```
-the same also works for files.
 
 ### Error Messages:
 
-`HTTP Status: 404 Not Found` will occur when a file / directory does not exist at the given path
+`HTTP 404 Not Found` will occur when a file / directory does not exist at the given path
 ```json
 {
    "success":false,
@@ -145,7 +170,7 @@ the same also works for files.
 }
 ```
 
-`HTTP Status: 400 Bad Request` will only occur when trying to `/api/list` a file
+`HTTP 400 Bad Request` will only occur when trying to `/api/list` a file
 ```json
 {
    "success":false,
