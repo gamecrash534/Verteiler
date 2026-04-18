@@ -23,7 +23,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -40,19 +39,25 @@ public class AdminRoutes {
         this.config = config;
     }
 
-    public void authenticate(Context ctx) {
+    public boolean authenticate(Context ctx) {
         String token = ctx.cookie("admin_token");
-        if (Set.of("/admin", "/admin/").contains(ctx.path().split("\\?")[0]) && token == null) token = ctx.queryParam("token");
+        if (ctx.body().startsWith("token=")) token = ctx.body().substring("token=".length());
 
         if (token == null || !token.equals(config.adminToken)) {
             ctx.status(401)
                 .html(WebUI.loginPage(config))
                 .skipRemainingHandlers()
                 .removeCookie("admin_token");
-            return;
+            return false;
         }
 
         ctx.cookie(new Cookie("admin_token", token, "/", 604800 * 7, true, true, "", SameSite.STRICT));
+        return true;
+    }
+
+    public void authRoute(Context ctx) {
+        boolean isAuth = authenticate(ctx);
+        if (isAuth) ctx.redirect("/admin");
     }
 
     public void dashboard(Context ctx) throws IOException {

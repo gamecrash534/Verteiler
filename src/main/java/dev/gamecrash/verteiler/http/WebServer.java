@@ -75,6 +75,7 @@ public class WebServer {
             ApiBuilder.before("/api/admin/*", adminRoutes::authenticate);
 
             ApiBuilder.get("/admin", adminRoutes::dashboard);
+            ApiBuilder.post("/admin", adminRoutes::authRoute);
             ApiBuilder.get("/admin/browse", adminRoutes::browse);
             ApiBuilder.get("/admin/browse/*", adminRoutes::browse);
 
