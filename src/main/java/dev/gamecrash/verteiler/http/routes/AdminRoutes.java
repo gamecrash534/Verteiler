@@ -340,7 +340,7 @@ public class AdminRoutes {
         for (Map.Entry<Integer, ChunkedUploadSession> entry : chunkedUploadSessions.entrySet()) {
             ChunkedUploadSession session = entry.getValue();
             synchronized (session) {
-                if (!session.isStale(config.uploadSessionTtl)) return;
+                if (!session.isStale(config.uploadSessionTtl)) continue;
                 session.removeTempData();
                 chunkedUploadSessions.remove(entry.getKey());
             }
