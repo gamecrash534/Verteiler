@@ -39,25 +39,33 @@ public class AdminRoutes {
         this.config = config;
     }
 
-    public boolean authenticate(Context ctx) {
+    public void authenticate(Context ctx) {
+        if (ctx.path().startsWith("/admin/login")) {
+            String token = ctx.body().startsWith("token=") ? ctx.body().substring("token=".length()) : "";
+            if (!token.equals(config.adminToken)) {
+                ctx.status(401)
+                    .html(WebUI.loginPage(config))
+                    .skipRemainingHandlers()
+                    .removeCookie("admin_token");
+                return;
+            }
+
+            ctx.cookie(new Cookie("admin_token", token, "/", 604800 * 7, true, true, "", SameSite.STRICT))
+                .redirect("/admin");
+            return;
+        }
+
         String token = ctx.cookie("admin_token");
-        if (ctx.body().startsWith("token=")) token = ctx.body().substring("token=".length());
 
         if (token == null || !token.equals(config.adminToken)) {
             ctx.status(401)
                 .html(WebUI.loginPage(config))
                 .skipRemainingHandlers()
                 .removeCookie("admin_token");
-            return false;
+            return;
         }
 
         ctx.cookie(new Cookie("admin_token", token, "/", 604800 * 7, true, true, "", SameSite.STRICT));
-        return true;
-    }
-
-    public void authRoute(Context ctx) {
-        boolean isAuth = authenticate(ctx);
-        if (isAuth) ctx.redirect("/admin");
     }
 
     public void dashboard(Context ctx) throws IOException {
