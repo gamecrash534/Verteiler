@@ -1,0 +1,45 @@
+FROM maven:3.9-eclipse-temurin-21 AS maven-builder
+
+WORKDIR /build
+
+COPY pom.xml .
+RUN mvn dependency:go-offline -q
+
+COPY src ./src
+RUN mvn package -q -DskipTests
+
+FROM bellsoft/hardened-liberica-native-image-kit-container:jdk-21-nik-23-musl AS native-builder
+
+WORKDIR /build-native
+
+COPY --from=maven-builder /build/target/Verteiler-*.jar ./verteiler.jar
+
+RUN native-image \
+    --libc=musl \
+    --no-fallback \
+    -O3 \
+    -H:IncludeResourceBundles=jakarta.servlet.LocalStrings,jakarta.servlet.http.LocalStrings \
+    -H:IncludeResources='^(web/.*|config\.toml)$' \
+    -jar verteiler.jar \
+    -o verteiler
+
+FROM alpine:latest
+
+WORKDIR /app
+
+RUN apk add --no-cache curl
+
+COPY --from=native-builder /build-native/verteiler ./verteiler
+RUN chmod +x ./verteiler
+
+VOLUME ["/app/data", "/app/logs", "/app/config"]
+
+ENV VERTEILER_HOST=0.0.0.0
+ENV VERTEILER_PORT=2987
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD curl -fsS --max-time 5 http://127.0.0.1:${VERTEILER_PORT}/api/health || exit 1
+
+EXPOSE 2987
+
+ENTRYPOINT ["./verteiler"]

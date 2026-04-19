@@ -21,5 +21,24 @@ steps:
         - ${CI_COMMIT_TAG}
         - ${CI_COMMIT_TAG:0:3}
         - ${CI_COMMIT_TAG:0:1}
+      compress: true
+
+  - name: build & publish native image
+    image: woodpeckerci/plugin-docker-buildx
+    settings:
+      repo: git.gamecrash.dev/game.crash/verteiler
+      registry:
+        from_secret: reg_url
+      username:
+        from_secret: reg_owner
+      password:
+        from_secret: reg_token
+      dockerfile: Dockerfile.native
+      platforms:
+        - linux/amd64
+      tags:
+        - ${CI_COMMIT_TAG}-native
+        - ${CI_COMMIT_TAG:0:3}-native
+        - ${CI_COMMIT_TAG:0:1}-native
       auto_tag: true
       compress: true
