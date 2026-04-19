@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 public class WebUI {
     private static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm").withZone(ZoneId.systemDefault());
@@ -22,25 +23,9 @@ public class WebUI {
     private static byte[] icon = new byte[0];
 
     public static String browseDirectory(Configuration config, String path, List<FileEntry> entries, boolean isAdmin) {
-        List<Map<String, Object>> entryList = new ArrayList<>();
-        for (FileEntry entry : entries) {
-            String entryPath = path.isEmpty() ? entry.name() : path + "/" + entry.name();
-            String href;
-            if (entry.isDirectory()) href = "/browse/" + entryPath;
-            else if (config.enablePreview && MimeTypes.isPreviewable(entry.mimeType())) href = "/preview/" + entryPath;
-            else href = "/download/" + entryPath;
-
-            Map<String, Object> item = new HashMap<>();
-            item.put("href", href);
-            item.put("class", entry.isDirectory() ? "directory" : "file");
-            item.put("icon", getFileIcon(entry.isDirectory() ? null : entry.mimeType(), entry.isDirectory()));
-            item.put("name", escapeHtml(entry.name() + (entry.isDirectory() ? "/" : "")));
-            item.put("showSize", config.showFileSizes);
-            item.put("size", entry.getReadableSize());
-            item.put("showDate", config.showDates);
-            item.put("date", dateFormat.format(entry.lastModified()));
-            entryList.add(item);
-        }
+        List<Map<String, Object>> entryList = buildEntryList(config, entries, (entry) ->
+            path.isEmpty() ? entry.name() : path + "/" + entry.name()
+        );
 
         String content = engine.render("browse", TemplateEngine.context()
             .put("breadcrumb", buildBreadcrumb(path, "/browse"))
@@ -54,6 +39,19 @@ public class WebUI {
         );
 
         return renderLayout(config, path.isEmpty() ? "files" : path, content, isAdmin);
+    }
+
+    public static String search(Configuration config, String query, List<FileEntry> entries, boolean isAdmin) {
+        List<Map<String, Object>> entryList = buildEntryList(config, entries, FileEntry::path);
+
+        String content = engine.render("search", TemplateEngine.context()
+            .put("entries", entryList)
+            .put("empty", entries.isEmpty())
+            .put("query", query)
+            .build()
+        );
+
+        return renderLayout(config, "search", content, isAdmin);
     }
 
     public static String previewFile(Configuration config, FileEntry entry, String path, boolean isAdmin) {
@@ -162,7 +160,7 @@ public class WebUI {
             .put("showFooter", config.footerEnabled)
             .put("showCredits", config.showCredits)
             .put("isAdmin", isAdmin)
-            .put(title.contains("admin") ? "isOnAdmin" : "isBrowsing", true)
+            .put(title.contains("admin") ? "isOnAdmin" : title.contains("search") ? "isSearching" : "isBrowsing", true)
             .build());
     }
 
@@ -239,6 +237,29 @@ public class WebUI {
             .replace("'", "\\'")
             .replace("\"", "\\\"")
             .replace("\n", "\\n");
+    }
+
+    private static List<Map<String, Object>> buildEntryList(Configuration config, List<FileEntry> entries, Function<FileEntry, String> pathMapper) {
+        List<Map<String, Object>> entryList = new ArrayList<>();
+        for (FileEntry entry : entries) {
+            String entryPath = pathMapper.apply(entry);
+            String href;
+            if (entry.isDirectory()) href = "/browse/" + entryPath;
+            else if (config.enablePreview && MimeTypes.isPreviewable(entry.mimeType())) href = "/preview/" + entryPath;
+            else href = "/download/" + entryPath;
+
+            Map<String, Object> item = new HashMap<>();
+            item.put("href", href);
+            item.put("class", entry.isDirectory() ? "directory" : "file");
+            item.put("icon", getFileIcon(entry.isDirectory() ? null : entry.mimeType(), entry.isDirectory()));
+            item.put("name", escapeHtml(entry.name() + (entry.isDirectory() ? "/" : "")));
+            item.put("showSize", config.showFileSizes);
+            item.put("size", entry.getReadableSize());
+            item.put("showDate", config.showDates);
+            item.put("date", dateFormat.format(entry.lastModified()));
+            entryList.add(item);
+        }
+        return entryList;
     }
 
     public static String getReadableSize(long size) {

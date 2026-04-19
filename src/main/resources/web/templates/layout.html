@@ -13,6 +13,7 @@
                 <a href="/" class="logo">{{appName}}</a>
                 <div class="nav-links">
                     <a href="/browse" {{#isBrowsing}} class="active" {{/isBrowsing}} >[files]</a>
+                    <a href="/search" {{#isSearching}} class="active" {{/isSearching}} >[search]</a>
                     {{#isAdmin}}<a href="/admin" {{#isOnAdmin}} class="active" {{/isOnAdmin}} >[admin]</a>{{/isAdmin}}
                     <a href="#" onclick="toggleTheme()" id="theme-toggle">[theme:dark]</a>
                 </div>

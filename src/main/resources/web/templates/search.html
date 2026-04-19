@@ -1,0 +1,19 @@
+<div class="search">
+    <form method="get" action="/search">
+        <input type="text" name="q" placeholder="Search here" autofocus value="{{query}}">
+    </form>
+</div>
+<div class="file-list">
+    {{#entries}}
+    <a href="{{href}}" class="file-item {{class}}">
+        <span class="icon">{{icon}}</span>
+        <span class="name">{{name}}</span>
+        {{#showSize}}<span class="size">{{size}}</span>{{/showSize}}
+        {{#showDate}}<span class="date">{{date}}</span>{{/showDate}}
+    </a>
+    {{/entries}}
+    {{#empty}}
+    <div class="empty">no results</div>
+    {{/empty}}
+</div>
+

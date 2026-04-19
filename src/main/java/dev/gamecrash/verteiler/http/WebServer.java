@@ -69,6 +69,8 @@ public class WebServer {
         ApiBuilder.get("/", fileRoutes::index);
         ApiBuilder.get("/browse", fileRoutes::browse);
         ApiBuilder.get("/browse/*", fileRoutes::browse);
+        ApiBuilder.get("/search", fileRoutes::search);
+        ApiBuilder.get("/search/*", fileRoutes::search);
         ApiBuilder.get("/download/*", fileRoutes::download);
         ApiBuilder.get("/raw/*", fileRoutes::raw);
         ApiBuilder.get("/preview/*", fileRoutes::preview);

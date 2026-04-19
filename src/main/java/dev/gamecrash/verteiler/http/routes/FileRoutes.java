@@ -52,6 +52,19 @@ public class FileRoutes {
         ctx.html(WebUI.browseDirectory(config, path, entries, isAdmin(ctx)));
     }
 
+    public void search(Context ctx) throws IOException {
+        if (!config.allowDirectoryListing) {
+            ctx.status(403).html(WebUI.error403(config, "Directory listing is disabled", isAdmin(ctx)));
+            return;
+        }
+
+        String query = ctx.queryParam("q");
+        if (query == null) query = "`";
+
+        List<FileEntry> entries = fileStorage.search(query, "", Integer.MAX_VALUE);
+        ctx.html(WebUI.search(config, query.equals("`") ? "" : query, entries, isAdmin(ctx)));
+    }
+
     public void download(Context ctx) throws IOException {
         String path = getPathFromContext(ctx, "/download");
         if (!fileStorage.exists(path)) {
