@@ -196,6 +196,6 @@ public class FileStorage {
         String relativePath = rootPath.relativize(path).toString();
 
         return  new FileEntry(path.getFileName().toString(), relativePath, attributes.isDirectory(), attributes.isDirectory() ? 0 : attributes.size(),
-            attributes.lastModifiedTime().toInstant(), attributes.isDirectory() ? "" : MimeTypes.getMimeType(path.getFileName().toString()));
+            attributes.lastModifiedTime().toInstant(), attributes.isDirectory() ? "" : MimeTypes.getMimeType(path.getFileName()));
     }
 }
