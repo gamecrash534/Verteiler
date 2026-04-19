@@ -7,11 +7,19 @@ Probably the best way to run this software is through the docker container:
 ```shell
 docker pull git.gamecrash.dev/game.crash/verteiler:[VERSION]
 ```
+Container tags / versions go after the following scheme:
+`major`, `major.minor`, `major.minor.patch`, or any of these, with a `-native` suffix for the native image.
+Examples for valid versions: `1-native`, `1.3`, `1.3.1-native`, etc...
+
+> [!TIP]
+> Native images are generally smaller and also much more performant in terms of memory usage, startup time and general response time.
+> There might be some compatibility issues though - especially as these images currently only support AMD64 as a platform.
+
 All available and valid docker versions can be found [here](https://git.gamecrash.dev/game.crash/-/packages/container/verteiler/versions).
 
 > [!IMPORTANT]
 > The `latest`-Tag has been deprecated for a list of reasons, starting with version `1.3.0`.
-> Please use either the major, minor or patch versions as a tag. Examples for working versions: `verteiler:1`, `verteiler:1.3`, `verteiler:1.3.0`
+> Please use any of the versions with the link mentioned above.
 
 For the blank JAR files, please visit the releases section [here](https://git.gamecrash.dev/game.crash/Verteiler/releases).
 
