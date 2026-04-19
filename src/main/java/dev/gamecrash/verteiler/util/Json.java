@@ -1,14 +1,14 @@
 package dev.gamecrash.verteiler.util;
+
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 
 public class Json {
     public static String object(Object... keyValues) {
         if (keyValues.length % 2 != 0) throw new IllegalArgumentException("please provide kv pairs");
         StringBuilder builder = new StringBuilder(keyValues.length * 16);
         builder.append('{');
-        for (int i = 0; i  < keyValues.length; i += 2) {
+        for (int i = 0; i < keyValues.length; i += 2) {
             if (i > 0) builder.append(',');
             escapeStringTo(builder, keyValues[i].toString());
             builder.append(':');
@@ -30,7 +30,10 @@ public class Json {
                 case '\n' -> builder.append("\\n");
                 case '\r' -> builder.append("\\r");
                 case '\t' -> builder.append("\\t");
-                default -> { if (c < 32) builder.append(String.format("\\u%04x", (int) c)); else builder.append(c); }
+                default -> {
+                    if (c < 32) builder.append(String.format("\\u%04x", (int) c));
+                    else builder.append(c);
+                }
             }
         }
         builder.append('"');
@@ -48,7 +51,6 @@ public class Json {
                 if (!(list.indexOf(entry) == list.size() - 1)) builder.append(", ");
             }
             builder.append("]");
-        }
-        else builder.append(object);
+        } else builder.append(object);
     }
 }

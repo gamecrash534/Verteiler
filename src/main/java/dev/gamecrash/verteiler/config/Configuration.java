@@ -121,6 +121,10 @@ public class Configuration {
         return null;
     }
 
+    public static Configuration getInstance() {
+        return instance;
+    }
+
     private String generateToken() {
         return UUID.randomUUID().toString().replace("-", "");
     }
@@ -143,7 +147,8 @@ public class Configuration {
         String envValue = System.getenv(envVar);
         if (envValue != null) try {
             return Long.parseLong(envValue);
-        } catch (NumberFormatException ignored) { }
+        } catch (NumberFormatException ignored) {
+        }
         Long tomlValue = toml.getLong(key);
         return tomlValue == null ? defaultValue : tomlValue;
     }
@@ -158,10 +163,6 @@ public class Configuration {
         Boolean tomlValue = toml.getBoolean(key);
         if (tomlValue != null) return tomlValue;
         return defaultValue;
-    }
-
-    public static Configuration getInstance() {
-        return instance;
     }
 
     public Path getDataPath() {

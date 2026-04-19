@@ -33,7 +33,7 @@ public class WebServer {
                 logger.error("Exception got caught", e);
                 jsonRes(ctx, 500, false, "Internal server error");
             });
-            
+
             javalinConfig.routes.apiBuilder(this::registerRoutes);
         });
 
@@ -51,6 +51,10 @@ public class WebServer {
         logger.info("Web Server stopped");
     }
 
+    public static void jsonRes(Context ctx, int status, boolean success, String message) {
+        ctx.status(status).contentType("application/json").result(Json.object("success", success, "message", message));
+    }
+
     private void registerRoutes() {
         FileRoutes fileRoutes = new FileRoutes(fileStorage, config);
         AdminRoutes adminRoutes = new AdminRoutes(fileStorage, config);
@@ -59,8 +63,8 @@ public class WebServer {
         ApiBuilder.get("/api/health", apiRoutes::health);
 
         ApiBuilder.get("/assets/css/*", WebServer::webResource);
-        ApiBuilder.get("/assets/js/*",  WebServer::webResource);
-        ApiBuilder.get("/favicon.svg",  WebServer::webResource);
+        ApiBuilder.get("/assets/js/*", WebServer::webResource);
+        ApiBuilder.get("/favicon.svg", WebServer::webResource);
 
         ApiBuilder.get("/", fileRoutes::index);
         ApiBuilder.get("/browse", fileRoutes::browse);
@@ -75,7 +79,8 @@ public class WebServer {
             ApiBuilder.before("/api/admin/*", adminRoutes::authenticate);
 
             ApiBuilder.get("/admin", adminRoutes::dashboard);
-            ApiBuilder.post("/admin/login", (ctx) -> {});
+            ApiBuilder.post("/admin/login", (ctx) -> {
+            });
             ApiBuilder.get("/admin/browse", adminRoutes::browse);
             ApiBuilder.get("/admin/browse/*", adminRoutes::browse);
 
@@ -92,10 +97,6 @@ public class WebServer {
         ApiBuilder.get("/api/list/*", apiRoutes::list);
         ApiBuilder.get("/api/info/*", apiRoutes::info);
         if (config.rootUriAsRawUri) ApiBuilder.get("/*", fileRoutes::raw);
-    }
-
-    public static void jsonRes(Context ctx, int status, boolean success, String message) {
-        ctx.status(status).contentType("application/json").result(Json.object("success", success, "message", message));
     }
 
     private static void webResource(Context ctx) {

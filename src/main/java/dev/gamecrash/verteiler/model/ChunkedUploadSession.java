@@ -2,7 +2,6 @@ package dev.gamecrash.verteiler.model;
 
 import dev.gamecrash.verteiler.logging.Logger;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

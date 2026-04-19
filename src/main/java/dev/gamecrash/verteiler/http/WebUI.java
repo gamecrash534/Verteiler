@@ -145,9 +145,9 @@ public class WebUI {
 
     private static String renderError(Configuration config, String code, String message, boolean isAdmin) {
         String content = engine.render("error", TemplateEngine.context()
-                .put("code", code)
-                .put("message", escapeHtml(message))
-                .build()
+            .put("code", code)
+            .put("message", escapeHtml(message))
+            .build()
         );
 
         return renderLayout(config, code, content, isAdmin);

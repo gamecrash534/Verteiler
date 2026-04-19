@@ -103,7 +103,7 @@ public class FileRoutes {
 
         FileEntry entry = fileStorage.get(path);
         if (entry == null) {
-            ctx.status(404).html(WebUI.error404(config, "Not Found: " +  path, isAdmin));
+            ctx.status(404).html(WebUI.error404(config, "Not Found: " + path, isAdmin));
             return;
         }
 

@@ -5,7 +5,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 
-public record FileEntry(String name, String path, boolean isDirectory, long size, Instant lastModified, String mimeType) {
+public record FileEntry(String name, String path, boolean isDirectory, long size, Instant lastModified,
+                        String mimeType) {
     public String getReadableSize() {
         if (isDirectory) return "-";
         return WebUI.getReadableSize(size);

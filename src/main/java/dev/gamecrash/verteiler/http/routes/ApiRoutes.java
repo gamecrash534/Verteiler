@@ -1,17 +1,14 @@
 package dev.gamecrash.verteiler.http.routes;
 
-import dev.gamecrash.verteiler.Main;
 import dev.gamecrash.verteiler.config.Configuration;
 import dev.gamecrash.verteiler.http.WebServer;
 import dev.gamecrash.verteiler.model.FileEntry;
 import dev.gamecrash.verteiler.storage.FileStorage;
-import dev.gamecrash.verteiler.storage.MimeTypes;
 import dev.gamecrash.verteiler.util.Json;
 import io.javalin.http.Context;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 public class ApiRoutes {
     private final FileStorage fileStorage;

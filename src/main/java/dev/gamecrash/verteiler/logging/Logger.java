@@ -18,14 +18,13 @@ import static dev.gamecrash.verteiler.logging.Colors.*;
 
 public class Logger {
     private static Logger instance;
-    private Path logFile;
-    private boolean logToFile = true;
-    private LogLevel logLevel = LogLevel.INFO;
-
     private final PrintStream out;
     private final PrintStream err;
     private final DateTimeFormatter dateFormatter;
     private final Set<String> logFileQueue = new HashSet<>();
+    private Path logFile;
+    private boolean logToFile = true;
+    private LogLevel logLevel = LogLevel.INFO;
 
     public Logger() {
         this.out = System.out;
@@ -33,6 +32,11 @@ public class Logger {
         this.dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         instance = this;
+    }
+
+    public static Logger getInstance() {
+        if (instance == null) instance = new Logger();
+        return instance;
     }
 
     public void loadConfig() {
@@ -153,10 +157,5 @@ public class Logger {
         } finally {
             logFileQueue.clear();
         }
-    }
-
-    public static Logger getInstance() {
-        if (instance == null) instance = new Logger();
-        return instance;
     }
 }

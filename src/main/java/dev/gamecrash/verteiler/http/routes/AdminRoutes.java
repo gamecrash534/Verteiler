@@ -275,7 +275,7 @@ public class AdminRoutes {
         }
 
         fileStorage.mkdir(path);
-        WebServer.jsonRes(ctx, 200,true, "created directory");
+        WebServer.jsonRes(ctx, 200, true, "created directory");
     }
 
     public void delete(Context ctx) throws IOException {
@@ -286,7 +286,7 @@ public class AdminRoutes {
         }
 
         boolean deleted = fileStorage.delete(path);
-        if (deleted) WebServer.jsonRes(ctx, 200,true, "deleted successfully");
+        if (deleted) WebServer.jsonRes(ctx, 200, true, "deleted successfully");
         else WebServer.jsonRes(ctx, 404, false, "file not found");
     }
 

@@ -4,9 +4,6 @@ import dev.gamecrash.verteiler.logging.Logger;
 import dev.gamecrash.verteiler.util.Minifier;
 import dev.gamecrash.verteiler.util.Resources;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,18 +11,20 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TemplateEngine {
-    private static TemplateEngine instance;
     private static final Logger logger = Logger.getInstance();
-
     private static final Pattern variablePattern = Pattern.compile("\\{\\{([^#/}]+?)}}");
     private static final Pattern sectionPattern = Pattern.compile("\\{\\{#([^}]+)}}(.*?)\\{\\{/\\1}}", Pattern.DOTALL);
-
+    private static TemplateEngine instance;
     private final Map<String, String> templateCache = new ConcurrentHashMap<>();
     private final Map<String, String> staticFileCache = new ConcurrentHashMap<>();
 
     public static TemplateEngine getInstance() {
         if (instance == null) instance = new TemplateEngine();
         return instance;
+    }
+
+    public static ContextBuilder context() {
+        return new ContextBuilder();
     }
 
     public String getTemplate(String name) {
@@ -45,7 +44,7 @@ public class TemplateEngine {
     }
 
     public String render(String template, Map<String, Object> context) {
-        return  renderString(getTemplate(template), context);
+        return renderString(getTemplate(template), context);
     }
 
     public String renderString(String template, Map<String, Object> context) {
@@ -105,10 +104,6 @@ public class TemplateEngine {
 
     private String loadIcon(String name) {
         return Resources.loadResource("web/static/icons/" + name + ".svg");
-    }
-
-    public static ContextBuilder context() {
-        return new ContextBuilder();
     }
 
     public static class ContextBuilder {
