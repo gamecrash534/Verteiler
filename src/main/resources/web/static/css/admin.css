@@ -104,6 +104,22 @@ input:focus {
     color: var(--text);
 }
 
+.admin-list .file-item .size,
+.admin-list .file-item .date {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.admin-list .file-item .size {
+    min-width: 70px;
+    text-align: right;
+}
+
+.admin-list .file-item .date {
+    min-width: 120px;
+    text-align: right;
+}
+
 .actions {
     display: flex;
     gap: 0.25rem;
@@ -133,13 +149,6 @@ input:focus {
 .actions button.danger:hover {
     background: rgba(248, 81, 73, 0.15);
     color: var(--red);
-}
-
-.empty {
-    text-align: center;
-    padding: 3rem 1rem;
-    color: var(--text-muted);
-    font-style: italic;
 }
 
 .modal {
@@ -211,11 +220,6 @@ input:focus {
     border-bottom: 1px solid var(--border);
 }
 
-.actions button svg {
-    width: 14px;
-    height: 14px;
-}
-
 @media (max-width: 600px) {
     .admin-list .file-item {
         grid-template-columns: auto 1fr auto auto;
@@ -226,3 +230,4 @@ input:focus {
         gap: 1rem;
     }
 }
+
