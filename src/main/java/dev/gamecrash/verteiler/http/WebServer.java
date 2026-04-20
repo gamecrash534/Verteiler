@@ -31,7 +31,12 @@ public class WebServer {
 
             javalinConfig.routes.exception(Exception.class, (e, ctx) -> {
                 logger.error("Exception got caught", e);
-                jsonRes(ctx, 500, false, "Internal server error");
+                if (ctx.path().startsWith("/api")) {
+                    jsonRes(ctx, 500, false, "Internal server error");
+                    return;
+                }
+
+                ctx.status(500).html(WebUI.error(config, "500", "Internal server error", false));
             });
 
             javalinConfig.routes.apiBuilder(this::registerRoutes);
