@@ -7,7 +7,8 @@ import java.nio.file.Path;
 public class MimeTypes {
     public static String getMimeType(Path file) {
         try {
-            return Files.probeContentType(file);
+            String type = Files.probeContentType(file);
+            return type == null ? "application/octet-stream" : type;
         } catch (IOException e) {
             return "application/octet-stream";
         }

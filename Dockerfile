@@ -14,7 +14,7 @@ WORKDIR /app
 
 COPY --from=builder /build/target/Verteiler-*.jar verteiler.jar
 
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl mailcap
 
 VOLUME ["/app/data", "/app/logs", "/app/config"]
 

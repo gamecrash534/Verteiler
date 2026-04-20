@@ -27,7 +27,7 @@ FROM alpine:latest
 
 WORKDIR /app
 
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl mailcap
 
 COPY --from=native-builder /build-native/verteiler ./verteiler
 RUN chmod +x ./verteiler
