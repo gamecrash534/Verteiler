@@ -153,7 +153,7 @@ public class FileStorage {
         String lowerPattern = pattern.toLowerCase();
 
         try (Stream<Path> walk = Files.walk(base)) {
-            walk.filter(p -> p.getFileName().toString().toLowerCase().contains(lowerPattern))
+            walk.filter(p -> p.getFileName().toString().toLowerCase().contains(lowerPattern) && !p.equals(rootPath))
                 .limit(maxResults)
                 .forEach(p -> {
                     try {
