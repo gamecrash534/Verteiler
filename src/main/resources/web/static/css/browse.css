@@ -14,10 +14,6 @@
     color: var(--text-muted);
 }
 
-.search input::placeholder {
-    color: var(--text-muted);
-}
-
 .file-list {
     display: flex;
     flex-direction: column;
