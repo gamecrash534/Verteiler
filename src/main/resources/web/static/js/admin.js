@@ -150,7 +150,7 @@ async function renameItem(path) {
     }
 }
 
-async function uploadChunkedFile(file, path, chunkSize) {
+async function uploadChunkedFile(file, path, chunkSize, maxConcurrentChunks = 4) {
     const totalChunks = Math.max(1, Math.ceil(file.size / chunkSize));
     const startData = new FormData();
 
@@ -163,25 +163,39 @@ async function uploadChunkedFile(file, path, chunkSize) {
     if (!startRes.success) {
         alert("could not start chunked upload for " + file.name + "\n see console for more detail")
         console.error("Could not start chunked upload", startRes);
+        throw new Error("Failed to start upload");
     }
 
     const id = startRes.id;
+
+    const chunkTasks = [];
     for (let chunkIdx = 0; chunkIdx < totalChunks; chunkIdx++) {
         const start = chunkIdx * chunkSize;
         const end = Math.min(file.size, start + chunkSize);
         const chunk = file.slice(start, end);
 
-        const data = new FormData();
-        data.append("id", id);
-        data.append("chunkIndex", chunkIdx);
-        data.append("chunk", chunk);
+        const uploadTask = async () => {
+            const data = new FormData();
+            data.append("id", id);
+            data.append("chunkIndex", chunkIdx);
+            data.append("chunk", chunk);
 
-        const chunkRes = await (await fetch("/api/admin/upload/chunked/chunk", { method: "POST", body: data })).json();
+            const chunkRes = await (await fetch("/api/admin/upload/chunked/chunk", { method: "POST", body: data })).json();
+            if (!chunkRes.success) {
+                throw new Error(`Chunk ${chunkIdx} failed: ${chunkRes.message}`);
+            }
+            return chunkRes;
+        };
 
-        if (!chunkRes.success) {
-            alert("could not upload file chunk for " + file.name + "\n see console for more detail")
-            console.error("Could not upload chunk", chunkRes);
-        }
+        chunkTasks.push(uploadTask);
+    }
+
+    try {
+        await concurrentUpload(chunkTasks, maxConcurrentChunks, file.name);
+    } catch (err) {
+        alert(`Upload failed for ${file.name}: ${err.message}`);
+        console.error("Chunk upload error", err);
+        throw err;
     }
 
     const endData = new FormData();
@@ -190,9 +204,32 @@ async function uploadChunkedFile(file, path, chunkSize) {
     const endRes = await (await fetch("/api/admin/upload/chunked/end", { method: "POST", body: endData })).json();
 
     if (!endRes.success) {
-        alert("could not end file chunk upload for " + file.name + "\n see console for more detail")
-        console.error("Could not end chunk upload ", endRes);
+        alert("could not finalize file chunk upload for " + file.name + "\n see console for more detail")
+        console.error("Could not end chunk upload", endRes);
+        throw new Error("Failed to finalize upload");
     }
+}
+
+async function concurrentUpload(tasks, maxConcurrent, fileName) {
+    const results = [];
+    const executing = [];
+
+    for (const [index, task] of tasks.entries()) {
+        const promise = Promise.resolve().then(() => task())
+            .then(result => {
+                results[index] = result;
+                executing.splice(executing.indexOf(promise), 1);
+            });
+
+        results.push(promise);
+        executing.push(promise);
+
+        if (executing.length >= maxConcurrent) {
+            await Promise.race(executing);
+        }
+    }
+
+    await Promise.all(results);
 }
 
 function formatSize(bytes) {
