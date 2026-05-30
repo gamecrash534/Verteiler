@@ -46,6 +46,15 @@
                 <input type="file" name="files" id="fileInput" multiple>
             </div>
             <div id="fileList" class="file-preview"></div>
+            <div id="uploadStatus" class="file-preview" style="display: none">
+                <div style="display: flex; align-items: center; gap:10px;">
+                    <progress id="uploadProgress" max="100"
+                              style="width: 100%; height: 5px; border-radius: 8px; overflow: hidden; background: #0000; border: none;"
+                              value="100">
+                    </progress>
+                    <span id="uploadProgressText" class="progress-text" aria-live="polite" style="min-width: 44px;">0%</span>
+                </div>
+            </div>
             <div class="modal-actions">
                 <button type="button" onclick="closeModal('uploadModal')" class="btn">cancel</button>
                 <button type="submit" class="btn primary">upload</button>

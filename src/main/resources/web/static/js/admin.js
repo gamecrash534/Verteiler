@@ -65,10 +65,11 @@ document.addEventListener('DOMContentLoaded', function () {
             try {
                 if (chunkedUploads) {
                     const configuredChunkSize = Number(formData.get("chunkSize"));
-                    console.warn(configuredChunkSize)
+                    const totalChunks = files.reduce((s, f) => s + Math.max(1, Math.ceil(f.size / configuredChunkSize)), 0);
+                    let totalChunkIdx = { i: 0 };
                     for (let i = 0; i < files.length; i++) {
                         const file = files[i];
-                        await uploadChunkedFile(file, targetPath, configuredChunkSize);
+                        await uploadChunkedFile(file, targetPath, configuredChunkSize, totalChunks, totalChunkIdx);
                     }
                     location.reload();
 
@@ -150,7 +151,7 @@ async function renameItem(path) {
     }
 }
 
-async function uploadChunkedFile(file, path, chunkSize) {
+async function uploadChunkedFile(file, path, chunkSize, totalChunksAll, totalChunkIdx) {
     const totalChunks = Math.max(1, Math.ceil(file.size / chunkSize));
     const startData = new FormData();
 
@@ -165,6 +166,11 @@ async function uploadChunkedFile(file, path, chunkSize) {
         console.error("Could not start chunked upload", startRes);
     }
 
+    const uploadStatus = document.getElementById("uploadStatus");
+    const uploadProgress = document.getElementById("uploadProgress");
+    const uploadProgressText = document.getElementById("uploadProgressText");
+    uploadStatus.style.display = "block";
+
     const id = startRes.id;
     for (let chunkIdx = 0; chunkIdx < totalChunks; chunkIdx++) {
         const start = chunkIdx * chunkSize;
@@ -178,9 +184,14 @@ async function uploadChunkedFile(file, path, chunkSize) {
 
         const chunkRes = await (await fetch("/api/admin/upload/chunked/chunk", { method: "POST", body: data })).json();
 
+        totalChunkIdx.i++;
+        let progress = Math.round(totalChunkIdx.i / totalChunksAll * 100);
+        uploadProgress.value = progress;
+        uploadProgressText.textContent = progress + "%";
         if (!chunkRes.success) {
             alert("could not upload file chunk for " + file.name + "\n see console for more detail")
             console.error("Could not upload chunk", chunkRes);
+            break;
         }
     }
 
