@@ -187,31 +187,31 @@ public class AdminRoutes {
             long expectedRemaining = session.totalSize - session.receivedBytes;
             long maxAllowed = Math.clamp(expectedRemaining, 0, config.chunkSize);
 
-            Path chunkPath = session.uploadDir.resolve(String.valueOf(chunkIdx));
-
-            try (InputStream input = chunk.content()) {
-                Files.copy(input, chunkPath, StandardCopyOption.REPLACE_EXISTING);
-            }
-
-            long actualSize = Files.size(chunkPath);
+            long actualSize = chunk.size();
             boolean isLastChunk = chunkIdx == session.totalChunks - 1;
 
             if (actualSize > maxAllowed) {
-                Files.deleteIfExists(chunkPath);
+
                 WebServer.jsonRes(ctx, 413, false, "chunk too large; max: " + maxAllowed);
                 return;
             }
 
             if (!isLastChunk && actualSize != config.chunkSize) {
-                Files.deleteIfExists(chunkPath);
                 WebServer.jsonRes(ctx, 422, false, "chunk too large");
                 return;
             }
 
             if (isLastChunk && actualSize != expectedRemaining) {
-                Files.deleteIfExists(chunkPath);
                 WebServer.jsonRes(ctx, 422, false, "expected final chunk size mismatch");
                 return;
+            }
+
+            WebServer.jsonRes(ctx, 200, true, "chunk received");
+
+            Path chunkPath = session.uploadDir.resolve(String.valueOf(chunkIdx));
+
+            try (InputStream input = chunk.content()) {
+                Files.copy(input, chunkPath, StandardCopyOption.REPLACE_EXISTING);
             }
 
             session.receivedBytes += actualSize;
@@ -219,7 +219,6 @@ public class AdminRoutes {
             session.lastChange = System.currentTimeMillis();
         }
 
-        WebServer.jsonRes(ctx, 200, true, "chunk received");
     }
 
     public void endChunkedUpload(Context ctx) throws IOException {
