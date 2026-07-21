@@ -195,7 +195,7 @@ public class FileRoutes {
         String path = ctx.path();
         if (path.startsWith(prefix)) path = path.substring(prefix.length());
         if (path.startsWith("/")) path = path.substring(1);
-        path = path.replaceAll("%20", " ");
+        path = path.replace("%20", " ");
 
         return path;
     }

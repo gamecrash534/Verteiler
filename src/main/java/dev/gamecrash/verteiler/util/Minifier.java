@@ -12,6 +12,8 @@ public class Minifier {
 
     private static final Configuration config = Configuration.getInstance();
 
+    private Minifier() {}
+
     public static String minifyCSS(String css) {
         if (!config.minifyFiles) return css;
         if (css == null || css.isEmpty()) return "";
