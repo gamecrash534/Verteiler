@@ -3,7 +3,9 @@ package dev.gamecrash.verteiler.util;
 import java.time.Instant;
 import java.util.List;
 
-public class Json {
+public final class Json {
+    private Json() {}
+
     public static String object(Object... keyValues) {
         if (keyValues.length % 2 != 0) throw new IllegalArgumentException("please provide kv pairs");
         StringBuilder builder = new StringBuilder(keyValues.length * 16);
@@ -46,9 +48,9 @@ public class Json {
         else if (object instanceof Instant instant) escapeStringTo(builder, instant.toString());
         else if (object instanceof List<?> list) {
             builder.append("[");
-            for (Object entry : list) {
-                stringifyTo(builder, entry);
-                if (!(list.indexOf(entry) == list.size() - 1)) builder.append(", ");
+            for (int i = 0; i < list.size(); i++) {
+                if (i > 0) builder.append(", ");
+                stringifyTo(builder, list.get(i));
             }
             builder.append("]");
         } else builder.append(object);

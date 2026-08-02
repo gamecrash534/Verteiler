@@ -21,6 +21,8 @@ public class Resources {
     private static final Configuration config = Configuration.getInstance();
     private static final Path resourcesPath = Path.of(config.customResourcesDirectory);
 
+    private Resources() {}
+
     public static String loadResource(String path) {
         try {
             if (Configuration.getInstance().useCustomResources) {

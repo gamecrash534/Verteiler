@@ -191,7 +191,6 @@ public class AdminRoutes {
             boolean isLastChunk = chunkIdx == session.totalChunks - 1;
 
             if (actualSize > maxAllowed) {
-
                 WebServer.jsonRes(ctx, 413, false, "chunk too large; max: " + maxAllowed);
                 return;
             }
