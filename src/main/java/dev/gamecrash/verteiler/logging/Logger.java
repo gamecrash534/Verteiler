@@ -29,7 +29,7 @@ public class Logger {
     public Logger() {
         this.out = System.out;
         this.err = System.err;
-        this.dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        this.dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH_mm_ss");
 
         instance = this;
     }
@@ -150,7 +150,7 @@ public class Logger {
     public void flushQueue() {
         if (!logToFile) return;
         try {
-            Files.writeString(logFile, String.join("\n", logFileQueue), StandardOpenOption.APPEND);
+            Files.writeString(logFile, String.join("\n", logFileQueue) + "\n", StandardOpenOption.APPEND);
         } catch (IOException e) {
             System.err.println("Error on writing logs to file:");
             e.printStackTrace();
