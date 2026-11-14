@@ -1,0 +1,59 @@
+{{define "preview"}}
+    <link rel="stylesheet" href="/assets/css/preview.css">
+    <div class="preview-container">
+        <div class="preview-header">
+            <h1>{{.FileName}}</h1>
+            <div class="preview-actions">
+                <a href="/download/{{.FilePath}}" class="btn">{{.IcnDownload}} download</a>
+                <a href="/raw/{{.FilePath}}" class="btn" target="_blank">{{.IcnExternal}} open raw</a>
+            </div>
+        </div>
+
+        <div class="preview-info">
+            <span class="size">{{.Size}}</span>
+            <span class="type">{{.Mime}}</span>
+        </div>
+
+        <div class="preview-content">
+            {{if .IsImage}}
+            <img src="/raw/{{.FilePath}}" alt="{{.FileName}}" loading="lazy">
+
+            {{else if .IsVideo}}
+            <video controls preload="metadata">
+                <source src="/raw/{{.FilePath}}" type="{{.Mime}}">
+                Your browser does not support video playback.
+            </video>
+
+            {{else if .IsAudio}}
+            <audio controls preload="metadata">
+                <source src="/raw/{{.FilePath}}" type="{{.Mime}}">
+                Your browser does not support audio playback.
+            </audio>
+
+            {{else if .IsPdf}}
+            <iframe src="/raw/{{.FilePath}}" type="application/pdf"></iframe>
+
+            {{else if .IsText}}
+            <pre class="text-preview" id="textContent">Loading...</pre>
+            <script>
+                fetch('/raw/{{.FilePath}}')
+                    .then(r => r.text())
+                    .then(text => {
+                        document.getElementById('textContent').textContent = text;
+                    })
+                    .catch(err => {
+                        document.getElementById('textContent').textContent = 'Error loading file: ' + err.message;
+                    });
+            </script>
+
+            {{else}}
+            <div class="no-preview">
+                <p>Preview not available for this file type.</p>
+                <a href="/download/{{.FilePath}}" class="btn primary">{{.IcnDownload}} Download file</a>
+            </div>
+            {{end}}
+        </div>
+    </div>
+
+
+{{end}}

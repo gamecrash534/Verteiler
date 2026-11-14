@@ -42,6 +42,20 @@ type BrowseEntry struct {
 	Date     string
 }
 
+type PreviewTmpl struct {
+	FileName    string
+	FilePath    string
+	IcnDownload template.HTML
+	IcnExternal template.HTML
+	Size        string
+	Mime        string
+	IsImage     bool
+	IsVideo     bool
+	IsAudio     bool
+	IsPdf       bool
+	IsText      bool
+}
+
 type PageData struct {
 	LayoutTmpl
 	Body template.HTML
@@ -81,11 +95,11 @@ func fromStorageEntries(entry []storage.Entry) []BrowseEntry {
 	for i, o := range entry {
 		var href string
 		if o.Dir {
-			href = "/browse/" + o.Path
+			href = "/browse" + o.Path
 		} else if util.IsPreviewable(o.Mime) {
-			href = "/preview/" + o.Path
+			href = "/preview" + o.Path
 		} else {
-			href = "/download/" + o.Path
+			href = "/download" + o.Path
 		}
 
 		entries[i] = BrowseEntry{
@@ -107,7 +121,7 @@ func fromStorageEntries(entry []storage.Entry) []BrowseEntry {
 	return entries
 }
 
-func httpError(w http.ResponseWriter, code int, msg string) {
+func onError(w http.ResponseWriter, code int, msg string, err error) {
 	tmpl := baseTmpl
 	tmpl.Title = "Error"
 
@@ -118,6 +132,8 @@ func httpError(w http.ResponseWriter, code int, msg string) {
 			Message: msg,
 		},
 	})
+
+	log.Printf("An error occurred: %s\n- sent to client: %v %s", err, code, msg)
 }
 
 func cdt(tmpl LayoutTmpl) LayoutTmpl {

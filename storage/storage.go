@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"errors"
 	"io"
 	"log"
 	"net/http"
@@ -54,14 +55,17 @@ func Store(path string, data []byte) error {
 }
 
 func Get(path string) (*Entry, error) {
+	return get(Paths(basePath, path))
+}
+
+func get(path string) (*Entry, error) {
 	stat, err := os.Stat(path)
 	if err != nil {
 		return nil, err
 	}
-
 	entry := Entry{
 		Name:     stat.Name(),
-		Path:     strings.TrimLeft(path, basePath),
+		Path:     fmtPath(path),
 		FullPath: path,
 		Dir:      stat.IsDir(),
 		Size:     stat.Size(),
@@ -88,7 +92,7 @@ func Get(path string) (*Entry, error) {
 }
 
 func GetFileContents(path string) ([]byte, error) {
-	return os.ReadFile(Paths(path))
+	return os.ReadFile(Paths(basePath, path))
 }
 
 func GetDirectoryContents(path string) ([]Entry, error) {
@@ -101,7 +105,7 @@ func GetDirectoryContents(path string) ([]Entry, error) {
 
 	res := make([]Entry, len(l))
 	for i, fe := range l {
-		en, err := Get(Paths(p, fe.Name()))
+		en, err := get(Paths(p, fe.Name()))
 		if err != nil {
 			return nil, err
 		}
@@ -112,14 +116,37 @@ func GetDirectoryContents(path string) ([]Entry, error) {
 	return res, nil
 }
 
-func Paths(keys ...string) string {
-	var res strings.Builder
-	res.WriteString(keys[0])
-
-	for _, key := range keys[1:] {
-		res.WriteString(string(os.PathSeparator) + key)
+func IsDir(path string) (bool, error) {
+	p := Paths(basePath, path)
+	s, err := os.Stat(p)
+	if err != nil {
+		return false, err
 	}
-	return res.String()
+
+	return s.IsDir(), nil
+}
+
+func Exists(path string) (bool, error) {
+	p := Paths(basePath, path)
+	_, err := os.Stat(p)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return false, nil
+		}
+
+		return false, err
+	}
+
+	return true, nil
+}
+
+func Paths(keys ...string) string {
+	var parts []string
+	for _, key := range keys {
+		parts = append(parts, filepath.Clean(key))
+	}
+
+	return filepath.Join(parts...)
 }
 
 func ProbeContentType(r io.Reader) (*string, error) {
@@ -132,4 +159,11 @@ func ProbeContentType(r io.Reader) (*string, error) {
 	res := http.DetectContentType(b)
 
 	return &res, nil
+}
+
+func fmtPath(path string) string {
+	p := filepath.Clean(strings.TrimPrefix(path, basePath))
+	p = filepath.ToSlash(p)
+
+	return p
 }
