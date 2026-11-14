@@ -13,7 +13,7 @@
         {{range .Entries}}
             {{template "entry" .}}
         {{end}}
-        {{if .Empty}}
+        {{if not .Entries}}
             <div class="empty">empty directory</div>
         {{end}}
     </div>

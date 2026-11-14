@@ -13,13 +13,13 @@ var basePath string
 var tempDir string
 
 type Entry struct {
-	name     string
-	path     string
-	fullPath string
-	dir      bool
-	size     int64
-	lastMod  time.Time
-	mime     string
+	Name     string
+	Path     string
+	FullPath string
+	Dir      bool
+	Size     int64
+	LastMod  time.Time
+	Mime     string
 }
 
 func Init(bp string, td string) {
@@ -54,19 +54,19 @@ func Get(path string) (*Entry, error) {
 	}
 
 	entry := Entry{
-		name:     stat.Name(),
-		path:     path,
-		fullPath: path,
-		dir:      stat.IsDir(),
-		size:     stat.Size(),
-		lastMod:  stat.ModTime(),
+		Name:     stat.Name(),
+		Path:     path,
+		FullPath: path,
+		Dir:      stat.IsDir(),
+		Size:     stat.Size(),
+		LastMod:  stat.ModTime(),
 	}
 
-	if entry.dir {
+	if entry.Dir {
 		return &entry, nil
 	}
 
-	f, err := os.Open(entry.fullPath)
+	f, err := os.Open(entry.FullPath)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +76,7 @@ func Get(path string) (*Entry, error) {
 	if err != nil {
 		return nil, err
 	}
-	entry.mime = *mt
+	entry.Mime = *mt
 
 	return &entry, nil
 }

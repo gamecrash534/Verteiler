@@ -1,0 +1,109 @@
+package web
+
+import (
+	"embed"
+	"html/template"
+	"log"
+	"net/http"
+	"strconv"
+	"verteiler/storage"
+)
+
+type LayoutTmpl struct {
+	AppName     string
+	Title       string
+	IsBrowsing  bool
+	IsSearching bool
+	IsAdmin     bool
+	IsOnAdmin   bool
+	ShowCredits bool
+	ShowFooter  bool
+}
+
+type BrowseTmpl struct {
+	Breadcrumb string
+	HasParent  bool
+	ParentUrl  string
+	UpIcon     string
+	Entries    []BrowseEntry
+}
+
+type BrowseEntry struct {
+	Href     string
+	Class    string
+	Icon     string
+	Name     string
+	ShowSize bool
+	ShowDate bool
+	Size     string
+	Date     string
+}
+
+type PageData struct {
+	LayoutTmpl
+	Data any
+}
+
+type ErrorTmpl struct {
+	Code    string
+	Message string
+}
+
+//go:embed templates
+var files embed.FS
+var layoutTmpl *template.Template
+
+var baseTmpl = LayoutTmpl{
+	AppName:     conf.Ui.Title,
+	ShowFooter:  conf.Ui.Footer.Enabled,
+	ShowCredits: conf.Ui.Footer.ShowCredits,
+}
+
+func cdt(tmpl LayoutTmpl) LayoutTmpl {
+	t := baseTmpl
+	t.Title = tmpl.Title
+	t.IsAdmin = tmpl.IsAdmin
+	t.IsBrowsing = tmpl.IsBrowsing
+	t.IsOnAdmin = tmpl.IsOnAdmin
+	t.IsSearching = tmpl.IsSearching
+	return t
+}
+
+func renderPage(w http.ResponseWriter, pageData PageData) {
+	if err := layoutTmpl.ExecuteTemplate(w, "layout", pageData); err != nil {
+		log.Printf("renderPage: %v", err)
+		return
+	}
+}
+
+func fromStorageEntries(entry []storage.Entry) []BrowseEntry {
+	entries := make([]BrowseEntry, len(entry))
+
+	for i, o := range entry {
+		entries[i] = BrowseEntry{
+			Href:     "",
+			Class:    "",
+			Icon:     "",
+			Name:     o.Name,
+			ShowSize: conf.Ui.ShowFileSizes,
+			ShowDate: conf.Ui.ShowDates,
+			Size:     strconv.FormatInt(o.Size, 10),
+			Date:     o.LastMod.String(),
+		}
+	}
+
+	return entries
+}
+
+func httpError(w http.ResponseWriter, code int, msg string) {
+	tmpl := baseTmpl
+	tmpl.Title = "Error"
+
+	renderPage(w, PageData{
+		LayoutTmpl: tmpl,
+		Data: ErrorTmpl{
+			Code:    strconv.FormatInt(int64(code), 10),
+			Message: msg,
+		},
+	})
+}

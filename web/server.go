@@ -6,36 +6,40 @@ import (
 	"net/http"
 	"strconv"
 	"verteiler/config"
+	"verteiler/storage"
 )
 
-func RunServer(conf config.Configuration) {
-	layoutTmpl = template.Must(template.ParseFS(files, "templates/layout.gohtml", "templates/browse.gohtml"))
+var conf config.Config
+
+func RunServer(c config.Config) {
+	conf = c
+	layoutTmpl = template.Must(template.ParseFS(files, "templates/*.gohtml"))
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/browse", browse)
 
-	log.Fatal(http.ListenAndServe(":"+strconv.FormatInt(int64(conf.Port), 10), mux))
+	log.Fatal(http.ListenAndServe(":"+strconv.FormatInt(int64(c.Server.Port), 10), mux))
 }
 
 func browse(w http.ResponseWriter, r *http.Request) {
+	en, err := storage.GetDirectoryContents("./")
+	if err != nil {
+		log.Println("error while trying to get contents:", err)
+		httpError(w, 500, "An internal error occurred")
+		return
+	}
+
+	lt := cdt(LayoutTmpl{
+		IsBrowsing: true,
+		IsAdmin:    true,
+	})
+
 	renderPage(w, PageData{
-		LayoutTmpl: LayoutTmpl{
-			AppName:     "Verteiler",
-			Title:       "Browse",
-			IsBrowsing:  true,
-			IsSearching: false,
-			IsAdmin:     true,
-			IsOnAdmin:   false,
-			ShowCredits: true,
-			ShowFooter:  true,
-		},
-		BrowseTmpl: BrowseTmpl{
+		LayoutTmpl: lt,
+		Data: BrowseTmpl{
 			Breadcrumb: "/",
 			HasParent:  false,
-			Entries: []BrowseEntry{
-				{Href: "/browse/file.txt", Class: "file", Icon: "[file]", Name: "file.txt", ShowSize: true, ShowDate: true, Size: "12 KB", Date: "2024-01-01"},
-			},
-			Empty: false,
+			Entries:    fromStorageEntries(en),
 		},
 	})
 }
