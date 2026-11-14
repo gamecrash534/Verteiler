@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"verteiler/config"
+	"verteiler/storage"
 	"verteiler/web"
 )
 
@@ -13,6 +14,7 @@ var conf config.Config
 func main() {
 	conf := *getConf()
 
+	storage.Init(conf.Server.DataDirectory, conf.Admin.TempUploadDir)
 	web.RunServer(conf)
 }
 

@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"errors"
 	"os"
+	"path/filepath"
 
 	"github.com/pelletier/go-toml/v2"
 )
@@ -26,7 +27,7 @@ type Admin struct {
 	Token                 string
 	ChunkedUploadsEnabled bool
 	ChunkSize             int
-	TempUploadDir         *os.File `toml:""`
+	TempUploadDir         string `toml:""`
 	UploadSessionTtl      int
 }
 
@@ -103,13 +104,19 @@ var DefaultConfig = Config{
 	},
 }
 
-func getTempDir() *os.File {
+func getTempDir() string {
 	f, e := os.CreateTemp("", "verteiler")
 	if e != nil {
 		panic(e)
 	}
+	defer f.Close()
 
-	return f
+	r, e := filepath.Abs(f.Name())
+	if e != nil {
+		panic(e)
+	}
+
+	return r
 }
 
 func ReadConfig(path string) (*Config, error) {

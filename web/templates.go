@@ -1,6 +1,7 @@
 package web
 
 import (
+	"bytes"
 	"embed"
 	"html/template"
 	"log"
@@ -41,6 +42,7 @@ type BrowseEntry struct {
 
 type PageData struct {
 	LayoutTmpl
+	Body template.HTML
 	Data any
 }
 
@@ -51,28 +53,23 @@ type ErrorTmpl struct {
 
 //go:embed templates
 var files embed.FS
-var layoutTmpl *template.Template
+var tmpls *template.Template
 
-var baseTmpl = LayoutTmpl{
-	AppName:     conf.Ui.Title,
-	ShowFooter:  conf.Ui.Footer.Enabled,
-	ShowCredits: conf.Ui.Footer.ShowCredits,
-}
+var baseTmpl LayoutTmpl
 
-func cdt(tmpl LayoutTmpl) LayoutTmpl {
-	t := baseTmpl
-	t.Title = tmpl.Title
-	t.IsAdmin = tmpl.IsAdmin
-	t.IsBrowsing = tmpl.IsBrowsing
-	t.IsOnAdmin = tmpl.IsOnAdmin
-	t.IsSearching = tmpl.IsSearching
-	return t
-}
+func renderPage(w http.ResponseWriter, tmplName string, pageData PageData) {
+	var body bytes.Buffer
+	if err := tmpls.ExecuteTemplate(&body, tmplName, pageData.Data); err != nil {
+		log.Printf("render %s: %v\n", tmplName, err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
 
-func renderPage(w http.ResponseWriter, pageData PageData) {
-	if err := layoutTmpl.ExecuteTemplate(w, "layout", pageData); err != nil {
-		log.Printf("renderPage: %v", err)
-		return
+	if err := tmpls.ExecuteTemplate(w, "layout", PageData{
+		LayoutTmpl: pageData.LayoutTmpl,
+		Data:       pageData.Data,
+		Body:       template.HTML(body.String()),
+	}); err != nil {
+		log.Printf("render layout: %v", err)
 	}
 }
 
@@ -99,11 +96,21 @@ func httpError(w http.ResponseWriter, code int, msg string) {
 	tmpl := baseTmpl
 	tmpl.Title = "Error"
 
-	renderPage(w, PageData{
+	renderPage(w, "error", PageData{
 		LayoutTmpl: tmpl,
 		Data: ErrorTmpl{
 			Code:    strconv.FormatInt(int64(code), 10),
 			Message: msg,
 		},
 	})
+}
+
+func cdt(tmpl LayoutTmpl) LayoutTmpl {
+	t := baseTmpl
+	t.Title = tmpl.Title
+	t.IsAdmin = tmpl.IsAdmin
+	t.IsBrowsing = tmpl.IsBrowsing
+	t.IsOnAdmin = tmpl.IsOnAdmin
+	t.IsSearching = tmpl.IsSearching
+	return t
 }

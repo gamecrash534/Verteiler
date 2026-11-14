@@ -1,4 +1,4 @@
-{{define "main"}}
+{{define "browse"}}
     <link rel="stylesheet" href="/assets/css/browse.css">
     <div class="breadcrumb">{{.Breadcrumb}}</div>
     <div class="file-list">
@@ -27,3 +27,5 @@
         {{if .ShowDate}}<span class="date">{{.Date}}</span>{{end}}
     </a>
 {{end}}
+
+{{template "layout" .}}

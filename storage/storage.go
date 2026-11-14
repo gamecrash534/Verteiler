@@ -2,7 +2,9 @@ package storage
 
 import (
 	"io"
+	"log"
 	"net/http"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -23,7 +25,11 @@ type Entry struct {
 }
 
 func Init(bp string, td string) {
-	basePath = bp
+	var err error
+	basePath, err = filepath.Abs(bp)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	tempDir = td
 
 	if d, err := os.Stat(bp); os.IsNotExist(err) || !d.IsDir() {

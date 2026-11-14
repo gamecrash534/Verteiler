@@ -21,12 +21,12 @@
         </nav>
     </header>
     <main>
-        {{template "main" .Data}}
+        {{.Body}}
     </main>
     {{if .ShowFooter}}
-    <footer>
-        {{if .ShowCredits}}<p>[Served with <a href="https://github.com/gamecrash534/Verteiler">Verteiler</a>]</p>{{end}}
-    </footer>
+        <footer>
+            {{if .ShowCredits}}<p>[Served with <a href="https://github.com/gamecrash534/Verteiler">Verteiler</a>]</p>{{end}}
+        </footer>
     {{end}}
     <script src="/assets/js/app.js"></script>
     {{if .IsOnAdmin}}<script src="/assets/js/admin.js"></script>{{end}}

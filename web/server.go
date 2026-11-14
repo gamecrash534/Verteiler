@@ -13,7 +13,13 @@ var conf config.Config
 
 func RunServer(c config.Config) {
 	conf = c
-	layoutTmpl = template.Must(template.ParseFS(files, "templates/*.gohtml"))
+	baseTmpl = LayoutTmpl{
+		AppName:     conf.Ui.Title,
+		ShowFooter:  conf.Ui.Footer.Enabled,
+		ShowCredits: conf.Ui.Footer.ShowCredits,
+	}
+
+	tmpls = template.Must(template.ParseFS(files, "templates/*.gohtml"))
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/browse", browse)
@@ -22,7 +28,7 @@ func RunServer(c config.Config) {
 }
 
 func browse(w http.ResponseWriter, r *http.Request) {
-	en, err := storage.GetDirectoryContents("./")
+	en, err := storage.GetDirectoryContents("")
 	if err != nil {
 		log.Println("error while trying to get contents:", err)
 		httpError(w, 500, "An internal error occurred")
@@ -32,9 +38,10 @@ func browse(w http.ResponseWriter, r *http.Request) {
 	lt := cdt(LayoutTmpl{
 		IsBrowsing: true,
 		IsAdmin:    true,
+		Title:      "browse",
 	})
 
-	renderPage(w, PageData{
+	renderPage(w, "browse", PageData{
 		LayoutTmpl: lt,
 		Data: BrowseTmpl{
 			Breadcrumb: "/",
