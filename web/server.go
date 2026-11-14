@@ -1,6 +1,7 @@
 package web
 
 import (
+	"embed"
 	"html/template"
 	"log"
 	"net/http"
@@ -9,6 +10,8 @@ import (
 	"verteiler/storage"
 )
 
+//go:embed static
+var resources embed.FS
 var conf config.Config
 
 func RunServer(c config.Config) {
@@ -23,8 +26,13 @@ func RunServer(c config.Config) {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/browse", browse)
+	mux.HandleFunc("/assets/{cat}/{f}", resourceHandler)
 
 	log.Fatal(http.ListenAndServe(":"+strconv.FormatInt(int64(c.Server.Port), 10), mux))
+}
+
+func resourceHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFileFS(w, r, resources, "static/"+r.PathValue("cat")+"/"+r.PathValue("f"))
 }
 
 func browse(w http.ResponseWriter, r *http.Request) {
