@@ -1,0 +1,35 @@
+{{define "layout"}}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{{.AppName}} / {{.Title}}</title>
+        <link rel="stylesheet" href="/assets/css/style.css">
+        <link rel="icon" href="/favicon.svg">
+    </head>
+    <body data-theme="dark">
+    <header>
+        <nav>
+            <a href="/" class="logo">{{.AppName}}</a>
+            <div class="nav-links">
+                <a href="/browse" {{if .IsBrowsing}} class="active" {{end}} >[files]</a>
+                <a href="/search" {{if .IsSearching}} class="active" {{end}} >[search]</a>
+                {{if .IsAdmin}}<a href="/admin" {{if .IsOnAdmin}} class="active" {{end}} >[admin]</a>{{end}}
+                <a href="#" onclick="toggleTheme()" id="theme-toggle">[theme:dark]</a>
+            </div>
+        </nav>
+    </header>
+    <main>
+        {{template "main" .}}
+    </main>
+    {{if .ShowFooter}}
+    <footer>
+        {{if .ShowCredits}}<p>[Served with <a href="https://github.com/gamecrash534/Verteiler">Verteiler</a>]</p>{{end}}
+    </footer>
+    {{end}}
+    <script src="/assets/js/app.js"></script>
+    {{if .IsOnAdmin}}<script src="/assets/js/admin.js"></script>{{end}}
+    </body>
+</html>
+{{end}}

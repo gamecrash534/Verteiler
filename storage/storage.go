@@ -32,7 +32,7 @@ func Init(bp string, td string) {
 }
 
 func Store(path string, data []byte) error {
-	p := Paths(path)
+	p := Paths(basePath, path)
 	f, err := os.Create(p)
 	if err != nil {
 		return err
@@ -56,7 +56,7 @@ func Get(path string) (*Entry, error) {
 	entry := Entry{
 		name:     stat.Name(),
 		path:     path,
-		fullPath: Paths(path),
+		fullPath: path,
 		dir:      stat.IsDir(),
 		size:     stat.Size(),
 		lastMod:  stat.ModTime(),
@@ -85,14 +85,34 @@ func GetFileContents(path string) ([]byte, error) {
 	return os.ReadFile(Paths(path))
 }
 
-func Paths(keys ...string) string {
-	var res strings.Builder
-	res.WriteString(basePath)
+func GetDirectoryContents(path string) ([]Entry, error) {
+	p := Paths(basePath, path)
+	l, err := os.ReadDir(p)
 
-	for _, key := range keys {
-		res.WriteString(string(os.PathSeparator) + key)
+	if err != nil {
+		return nil, err
 	}
 
+	res := make([]Entry, len(l))
+	for i, fe := range l {
+		en, err := Get(Paths(p, fe.Name()))
+		if err != nil {
+			return nil, err
+		}
+
+		res[i] = *en
+	}
+
+	return res, nil
+}
+
+func Paths(keys ...string) string {
+	var res strings.Builder
+	res.WriteString(keys[0])
+
+	for _, key := range keys[1:] {
+		res.WriteString(string(os.PathSeparator) + key)
+	}
 	return res.String()
 }
 

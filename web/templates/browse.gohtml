@@ -1,0 +1,29 @@
+{{define "main"}}
+    <link rel="stylesheet" href="/assets/css/browse.css">
+    <div class="breadcrumb">{{.Breadcrumb}}</div>
+    <div class="file-list">
+        {{if .HasParent}}
+            <a href="{{.ParentUrl}}" class="file-item parent directory">
+                <span class="icon">{{.UpIcon}}</span>
+                <span class="name">..</span>
+                <span class="size"></span>
+                <span class="date"></span>
+            </a>
+        {{end}}
+        {{range .Entries}}
+            {{template "entry" .}}
+        {{end}}
+        {{if .Empty}}
+            <div class="empty">empty directory</div>
+        {{end}}
+    </div>
+{{end}}
+
+{{define "entry"}}
+    <a href="{{.Href}}" class="file-item {{.Class}}">
+        <span class="icon">{{.Icon}}</span>
+        <span class="name">{{.Name}}</span>
+        {{if .ShowSize}}<span class="size">{{.Size}}</span>{{end}}
+        {{if .ShowDate}}<span class="date">{{.Date}}</span>{{end}}
+    </a>
+{{end}}
