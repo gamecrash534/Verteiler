@@ -1,0 +1,162 @@
+:root {
+    --bg: #0d1117;
+    --bg-secondary: #161b22;
+    --bg-hover: #1f2428;
+    --text: #c9d1d9;
+    --text-muted: #8b949e;
+    --accent: #58a6ff;
+    --accent-hover: #79b8ff;
+    --border: #30363d;
+    --mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+}
+
+body[data-theme="light"] {
+    --bg: #f2eee8;
+    --bg-secondary: #e9e4dd;
+    --bg-hover: #e0dbd7;
+    --text: #191616;
+    --text-muted: #4c4a46;
+    --accent: #0064bc;
+    --accent-hover: #0b516e;
+    --border: #cfc9c2;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--mono);
+    font-size: 14px;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+}
+
+header {
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 0;
+}
+
+footer {
+    border-top: 1px solid var(--border);
+    padding: 1rem;
+    margin-top: auto;
+    display: flex;
+    align-content: center;
+}
+
+footer p {
+    padding: 0 0.5rem;
+}
+
+nav {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+    text-decoration: none;
+}
+
+.logo:hover {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.nav-links a {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.nav-links a:hover, .nav-links a.active {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+    width: 100%;
+}
+
+h1 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: var(--text-muted);
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    text-decoration: none;
+    transition: all 0.15s;
+}
+
+.btn.primary {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+}
+
+.btn:hover {
+    color: var(--text);
+    border-color: var(--text-muted);
+    text-decoration: none;
+}
+
+.btn.primary:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+    color: var(--bg);
+}
+
+.btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-muted);
+    font-style: italic;
+}

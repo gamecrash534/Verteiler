@@ -1,0 +1,216 @@
+let currentPath = "";
+
+function getCurrentPath() {
+    currentPath = window.location.pathname.split("/browse/")[1];
+}
+
+function showUploadModal() {
+    document.getElementById('uploadModal').classList.add('active');
+}
+
+function showMkdirModal() {
+    document.getElementById('mkdirModal').classList.add('active');
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.remove('active');
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const uploadForm = document.getElementById('uploadForm');
+    const fileInput = document.getElementById('fileInput');
+    const dropZone = document.getElementById('dropZone');
+    const fileList = document.getElementById('fileList');
+
+    if (dropZone) {
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            fileInput.files = e.dataTransfer.files;
+            updateFileList();
+        });
+    }
+
+    if (fileInput) fileInput.addEventListener('change', updateFileList);
+
+    function updateFileList() {
+        fileList.innerHTML = '';
+        for (const file of fileInput.files) {
+            const div = document.createElement('div');
+            div.className = 'file-preview-item';
+            div.innerHTML = '<span>' + file.name + '</span><span>' + formatSize(file.size) + '</span>';
+            fileList.appendChild(div);
+        }
+    }
+
+    if (uploadForm) {
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const files = Array.from(fileInput.files);
+            if (files.length === 0) {
+                alert('Files to upload may not be null');
+                return;
+            }
+
+            const formData = new FormData(uploadForm);
+            const chunkedUploads = formData.get("chunkedUploads") === "true";
+            const targetPath = formData.get("path") || "";
+
+            try {
+                if (chunkedUploads) {
+                    const configuredChunkSize = Number(formData.get("chunkSize"));
+                    const totalChunks = files.reduce((s, f) => s + Math.max(1, Math.ceil(f.size / configuredChunkSize)), 0);
+                    let totalChunkIdx = { i: 0 };
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        await uploadChunkedFile(file, targetPath, configuredChunkSize, totalChunks, totalChunkIdx);
+                    }
+                    location.reload();
+
+                    return;
+                }
+
+                const res = await fetch('/api/admin/upload', {method: 'POST', body: formData});
+                const data = await res.json();
+                if (data.success) location.reload();
+                else alert(data.message);
+            } catch (err) {
+                alert('Upload failed: ' + err.message);
+            }
+        });
+    }
+
+    const mkdirForm = document.getElementById('mkdirForm');
+    if (mkdirForm) {
+        mkdirForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = mkdirForm.querySelector('input[name="name"]').value;
+            const path = currentPath ? currentPath + '/' + name : name;
+            try {
+                const res = await fetch('/api/admin/mkdir', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                    body: 'path=' + encodeURIComponent(path)
+                });
+                const data = await res.json();
+                if (data.success) location.reload();
+                else alert(data.message);
+            } catch (err) {
+                alert('Failed: ' + err.message);
+            }
+        });
+    }
+
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal(modal.id);
+        });
+    });
+});
+
+async function deleteItem(path) {
+    if (!confirm('Delete ' + path + '?')) return;
+    try {
+        const res = await fetch('/api/admin/delete', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'path=' + encodeURIComponent(path)
+        });
+        const data = await res.json();
+        if (data.success) location.reload();
+        else alert(data.message);
+
+    } catch (err) {
+        alert('Failed: ' + err.message);
+    }
+}
+
+async function renameItem(path) {
+    const name = path.split('/').pop();
+    const newName = prompt('New name:', name);
+    if (!newName || newName === name) return;
+    const dir = path.substring(0, path.length - name.length);
+    const newPath = dir + newName;
+    try {
+        const res = await fetch('/api/admin/move', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'from=' + encodeURIComponent(path) + '&to=' + encodeURIComponent(newPath)
+        });
+        const data = await res.json();
+        if (data.success) location.reload();
+        else alert(data.message);
+    } catch (err) {
+        alert('Failed: ' + err.message);
+    }
+}
+
+async function uploadChunkedFile(file, path, chunkSize, totalChunksAll, totalChunkIdx) {
+    const totalChunks = Math.max(1, Math.ceil(file.size / chunkSize));
+    const startData = new FormData();
+
+    startData.append("path", path);
+    startData.append("filename", file.name);
+    startData.append("totalSize", file.size);
+    startData.append("totalChunks", String(totalChunks));
+
+    const startRes = await (await fetch("/api/admin/upload/chunked/start", {method: "POST", body: startData})).json()
+    if (!startRes.success) {
+        alert("could not start chunked upload for " + file.name + "\n see console for more detail")
+        console.error("Could not start chunked upload", startRes);
+    }
+
+    const uploadStatus = document.getElementById("uploadStatus");
+    const uploadProgress = document.getElementById("uploadProgress");
+    const uploadProgressText = document.getElementById("uploadProgressText");
+    uploadStatus.style.display = "block";
+
+    const id = startRes.id;
+    for (let chunkIdx = 0; chunkIdx < totalChunks; chunkIdx++) {
+        const start = chunkIdx * chunkSize;
+        const end = Math.min(file.size, start + chunkSize);
+        const chunk = file.slice(start, end);
+
+        const data = new FormData();
+        data.append("id", id);
+        data.append("chunkIndex", chunkIdx);
+        data.append("chunk", chunk);
+
+        const chunkRes = await (await fetch("/api/admin/upload/chunked/chunk", { method: "POST", body: data })).json();
+
+        totalChunkIdx.i++;
+        let progress = Math.round(totalChunkIdx.i / totalChunksAll * 100);
+        uploadProgress.value = progress;
+        uploadProgressText.textContent = progress + "%";
+        if (!chunkRes.success) {
+            alert("could not upload file chunk for " + file.name + "\n see console for more detail")
+            console.error("Could not upload chunk", chunkRes);
+            break;
+        }
+    }
+
+    const endData = new FormData();
+    endData.append("id", id);
+
+    const endRes = await (await fetch("/api/admin/upload/chunked/end", { method: "POST", body: endData })).json();
+
+    if (!endRes.success) {
+        alert("could not end file chunk upload for " + file.name + "\n see console for more detail")
+        console.error("Could not end chunk upload ", endRes);
+    }
+}
+
+function formatSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KiB';
+    if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MiB';
+    return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GiB';
+}
+
+window.onload = getCurrentPath;

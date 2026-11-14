@@ -1,0 +1,16 @@
+.error {
+    text-align: center;
+    padding: 4rem 1rem;
+}
+
+.error h1 {
+    font-size: 3rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.error p {
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+}
+
