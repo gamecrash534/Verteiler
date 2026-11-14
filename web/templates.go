@@ -3,14 +3,13 @@ package web
 import (
 	"bytes"
 	"embed"
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 	"verteiler/storage"
+	"verteiler/util"
 )
 
 type LayoutTmpl struct {
@@ -80,10 +79,19 @@ func fromStorageEntries(entry []storage.Entry) []BrowseEntry {
 	entries := make([]BrowseEntry, len(entry))
 
 	for i, o := range entry {
+		var href string
+		if o.Dir {
+			href = "/browse/" + o.Path
+		} else if util.IsPreviewable(o.Mime) {
+			href = "/preview/" + o.Path
+		} else {
+			href = "/download/" + o.Path
+		}
+
 		entries[i] = BrowseEntry{
-			Href:     "",
-			Class:    "",
-			Icon:     resolveIcon(o.Mime, o.Dir),
+			Href:     href,
+			Class:    util.GetCssClass(o.Dir),
+			Icon:     util.ResolveIcon(o.Mime, o.Dir, icons),
 			Name:     o.Name,
 			ShowSize: conf.Ui.ShowFileSizes,
 			ShowDate: conf.Ui.ShowDates,
@@ -92,7 +100,7 @@ func fromStorageEntries(entry []storage.Entry) []BrowseEntry {
 		if o.Dir {
 			entries[i].Size = "-"
 		} else {
-			entries[i].Size = fmtSize(o.Size)
+			entries[i].Size = util.FmtSize(o.Size)
 		}
 	}
 
@@ -120,49 +128,4 @@ func cdt(tmpl LayoutTmpl) LayoutTmpl {
 	t.IsOnAdmin = tmpl.IsOnAdmin
 	t.IsSearching = tmpl.IsSearching
 	return t
-}
-
-func fmtSize(b int64) string {
-	const u = 1024
-	if b < u {
-		return fmt.Sprintf("%dB", b)
-	}
-
-	d, e := int64(u), 0
-	for n := b / u; n >= u; n /= u {
-		d *= u
-		e++
-	}
-
-	return fmt.Sprintf("%.1f%ciB", float64(b)/float64(d), "KMGTPE"[e])
-}
-
-func resolveIcon(mime string, dir bool) template.HTML {
-	if dir {
-		return icons["folder"]
-	}
-
-	switch strings.Split(mime, "/")[0] {
-	case "text":
-		return icons["text"]
-	case "image":
-		return icons["image"]
-	case "video":
-		return icons["video"]
-	case "audio":
-		return icons["audio"]
-	}
-
-	if mime == "application/json" || mime == "application/xml" {
-		return icons["text"]
-	}
-	if mime == "application/pdf" {
-		return icons["pdf"]
-	}
-
-	if strings.Contains(mime, "zip") || strings.Contains(mime, "tar") || strings.Contains(mime, "tar") {
-		return icons["archive"]
-	}
-
-	return icons["file"]
 }

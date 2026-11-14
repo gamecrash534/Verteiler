@@ -61,7 +61,7 @@ func Get(path string) (*Entry, error) {
 
 	entry := Entry{
 		Name:     stat.Name(),
-		Path:     path,
+		Path:     strings.TrimLeft(path, basePath),
 		FullPath: path,
 		Dir:      stat.IsDir(),
 		Size:     stat.Size(),

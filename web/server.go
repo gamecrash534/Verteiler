@@ -30,8 +30,9 @@ func RunServer(c config.Config) {
 	tmpls = template.Must(template.ParseFS(files, "templates/*.gohtml"))
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/browse", browse)
 	mux.HandleFunc("/assets/{cat}/{f}", resourceHandler)
+	mux.HandleFunc("/browse", browse)
+	mux.HandleFunc("/browse/{path}", browse)
 
 	log.Fatal(http.ListenAndServe(":"+strconv.FormatInt(int64(c.Server.Port), 10), mux))
 }
@@ -41,7 +42,9 @@ func resourceHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func browse(w http.ResponseWriter, r *http.Request) {
-	en, err := storage.GetDirectoryContents("")
+	path := r.PathValue("path")
+
+	en, err := storage.GetDirectoryContents(path)
 	if err != nil {
 		log.Println("error while trying to get contents:", err)
 		httpError(w, 500, "An internal error occurred")
