@@ -33,6 +33,9 @@ func RunServer(c config.Config) {
 	tmpls = template.Must(template.ParseFS(files, "templates/*.gohtml"))
 
 	mux := http.NewServeMux()
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/browse", 301)
+	})
 	mux.HandleFunc("/assets/{cat}/{f}", resourceHandler)
 	mux.HandleFunc("/browse", browse)
 	mux.HandleFunc("/browse/{path...}", browse)
