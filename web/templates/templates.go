@@ -158,7 +158,9 @@ func OnError(w http.ResponseWriter, code int, msg string, err error) {
 		},
 	})
 
-	log.Printf("An error occurred: %s\n- sent to client: %v %s", err, code, msg)
+	if code != 404 {
+		log.Printf("An error occurred: %s\n- sent to client: %v %s", err, code, msg)
+	}
 }
 
 func registerIcons(resources *embed.FS) {

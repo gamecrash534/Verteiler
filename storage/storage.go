@@ -187,7 +187,7 @@ func ProbeContentType(r io.Reader, n string) (*string, error) {
 		res = http.DetectContentType(b)
 	}
 
-	return &res, nil
+	return &strings.Split(res, ";")[0], nil
 }
 
 func fmtPath(path string) string {

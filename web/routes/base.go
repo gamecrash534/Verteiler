@@ -4,12 +4,37 @@ import (
 	"html/template"
 	"io/fs"
 	"net/http"
-	"os"
 	"strings"
+	"verteiler/config"
 	"verteiler/storage"
 	"verteiler/util"
 	"verteiler/web/templates"
 )
+
+func BaseMux(conf *config.Config) *http.ServeMux {
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/{$}", func(w http.ResponseWriter, r *http.Request) {
+		if conf.Security.AllowDirectoryListing {
+			http.Redirect(w, r, "/browse", 301)
+		} else {
+			templates.OnError(w, 401, "Not Allowed", nil)
+		}
+	})
+
+	if conf.Security.AllowDirectoryListing {
+		mux.HandleFunc("/browse", Browse)
+		mux.HandleFunc("/browse/{path...}", Browse)
+		mux.HandleFunc("/search", Search)
+	}
+	if conf.Ui.EnablePreview {
+		mux.HandleFunc("/preview/{path...}", Preview)
+	}
+	mux.HandleFunc("/raw/{path...}", Raw)
+	mux.HandleFunc("/download/{path...}", Download)
+
+	return mux
+}
 
 func Raw(w http.ResponseWriter, r *http.Request) {
 	serveFile(w, r, false)
@@ -25,8 +50,10 @@ func Preview(w http.ResponseWriter, r *http.Request) {
 	d, err := storage.Get(path)
 	if err != nil {
 		templates.OnError(w, 500, "Internal Error", err)
+		return
 	} else if d.Dir {
 		templates.OnError(w, 403, "Requested path is a directory", fs.ErrInvalid)
+		return
 	}
 
 	lt := cdt(templates.LayoutTmpl{
@@ -109,15 +136,19 @@ func serveFile(w http.ResponseWriter, r *http.Request, download bool) {
 
 	if ex, err := storage.Exists(path); err != nil {
 		templates.OnError(w, 500, "Internal Error", err)
+		return
 	} else if !ex {
-		templates.OnError(w, 404, "Not Found", os.ErrNotExist)
+		templates.OnError(w, 404, "Not Found", nil)
+		return
 	}
 
 	d, err := storage.Get(path)
 	if err != nil {
 		templates.OnError(w, 500, "Internal Error", err)
+		return
 	} else if d.Dir {
 		templates.OnError(w, 403, "Requested path is a directory", fs.ErrInvalid)
+		return
 	}
 
 	if download {
