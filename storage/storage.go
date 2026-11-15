@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io"
 	"log"
+	"mime"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -82,7 +83,7 @@ func get(path string) (*Entry, error) {
 	}
 	defer f.Close()
 
-	mt, err := ProbeContentType(f)
+	mt, err := ProbeContentType(f, filepath.Ext(filepath.Base(path)))
 	if err != nil {
 		return nil, err
 	}
@@ -149,15 +150,21 @@ func Paths(keys ...string) string {
 	return filepath.Join(parts...)
 }
 
-func ProbeContentType(r io.Reader) (*string, error) {
+func ProbeContentType(r io.Reader, n string) (*string, error) {
 	b := make([]byte, 512)
-	_, err := r.Read(b)
+	br, err := r.Read(b)
 
 	if err != nil {
 		return nil, err
 	}
-	res := http.DetectContentType(b)
+	b = b[:br]
 
+	res := mime.TypeByExtension(n)
+	if res == "application/octet-stream" || res == "" {
+		res = http.DetectContentType(b)
+	}
+
+	log.Println(res)
 	return &res, nil
 }
 
