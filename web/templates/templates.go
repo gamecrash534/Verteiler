@@ -121,7 +121,7 @@ func FromStorageEntries(entry []storage.Entry) []BrowseEntry {
 		var href string
 		if o.Dir {
 			href = "/browse" + o.Path
-		} else if util.IsPreviewable(o.Mime) {
+		} else if util.IsPreviewable(o.Mime) && conf.Ui.EnablePreview {
 			href = "/preview" + o.Path
 		} else {
 			href = "/download" + o.Path
