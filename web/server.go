@@ -37,6 +37,7 @@ func RunServer(c config.Config) {
 		http.Redirect(w, r, "/browse", 301)
 	})
 	mux.HandleFunc("/assets/{cat}/{f}", resourceHandler)
+	mux.HandleFunc("/favicon.svg", favicon)
 	mux.HandleFunc("/browse", browse)
 	mux.HandleFunc("/browse/{path...}", browse)
 	mux.HandleFunc("/search", search)
@@ -49,6 +50,10 @@ func RunServer(c config.Config) {
 
 func resourceHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFileFS(w, r, resources, "static/"+r.PathValue("cat")+"/"+r.PathValue("f"))
+}
+
+func favicon(w http.ResponseWriter, r *http.Request) {
+	http.ServeFileFS(w, r, resources, "static/favicon.svg")
 }
 
 func raw(w http.ResponseWriter, r *http.Request) {
