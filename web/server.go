@@ -109,7 +109,7 @@ func browse(w http.ResponseWriter, r *http.Request) {
 	renderPage(w, "browse", PageData{
 		LayoutTmpl: lt,
 		Data: BrowseTmpl{
-			Breadcrumb: "/",
+			Breadcrumb: breadcrumb(path),
 			UpIcon:     icons["up"],
 			HasParent:  false,
 			Entries:    fromStorageEntries(en),
@@ -182,4 +182,30 @@ func serveFile(w http.ResponseWriter, r *http.Request, download bool) {
 	}
 
 	http.ServeFile(w, r, d.FullPath)
+}
+
+func breadcrumb(path string) template.HTML {
+	const base = "<a href='/browse/'>/</a>"
+	if path == "" || path == "/" {
+		return base
+	}
+
+	var res strings.Builder
+	var cpath strings.Builder
+
+	res.WriteString(base)
+	parts := strings.Split(path, "/")
+	for i, p := range parts {
+		cpath.WriteString(p)
+		if i == len(parts)-1 {
+			res.WriteString(p + "/")
+			continue
+		}
+
+		res.WriteString("<a href='/browse/" + cpath.String() + "'>" + p + "/</a>")
+
+		cpath.WriteString("/")
+	}
+
+	return template.HTML(res.String())
 }

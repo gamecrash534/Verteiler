@@ -24,7 +24,7 @@ type LayoutTmpl struct {
 }
 
 type BrowseTmpl struct {
-	Breadcrumb string
+	Breadcrumb template.HTML
 	HasParent  bool
 	ParentUrl  string
 	UpIcon     template.HTML
