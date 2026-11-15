@@ -3,6 +3,7 @@ package storage
 import (
 	"errors"
 	"io"
+	"io/fs"
 	"log"
 	"mime"
 	"net/http"
@@ -117,6 +118,28 @@ func GetDirectoryContents(path string) ([]Entry, error) {
 	return res, nil
 }
 
+func SearchDirectoryContents(query string) ([]Entry, error) {
+	p := Paths(basePath)
+	var res []Entry
+	err := filepath.WalkDir(p, func(p string, fe fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if !strings.Contains(fe.Name(), query) {
+			return nil
+		}
+
+		en, err := get(p)
+		if err != nil {
+			return err
+		}
+
+		res = append(res, *en)
+		return nil
+	})
+	return res, err
+}
+
 func IsDir(path string) (bool, error) {
 	p := Paths(basePath, path)
 	s, err := os.Stat(p)
@@ -164,7 +187,6 @@ func ProbeContentType(r io.Reader, n string) (*string, error) {
 		res = http.DetectContentType(b)
 	}
 
-	log.Println(res)
 	return &res, nil
 }
 

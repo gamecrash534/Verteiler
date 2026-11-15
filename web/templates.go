@@ -42,6 +42,11 @@ type BrowseEntry struct {
 	Date     string
 }
 
+type SearchTmpl struct {
+	Query   string
+	Entries []BrowseEntry
+}
+
 type PreviewTmpl struct {
 	FileName    string
 	FilePath    string

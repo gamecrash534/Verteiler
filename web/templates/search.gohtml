@@ -1,0 +1,17 @@
+{{define "search"}}
+    <link rel="stylesheet" href="/assets/css/search.css">
+    <link rel="stylesheet" href="/assets/css/browse.css">
+    <div class="search">
+        <form method="get" action="/search">
+            <input type="text" name="q" placeholder="Search here" autofocus value="{{.Query}}">
+        </form>
+    </div>
+    <div class="file-list">
+        {{range .Entries}}
+            {{template "entry" .}}
+        {{end}}
+        {{if not .Entries}}
+        <div class="empty">no results</div>
+        {{end}}
+    </div>
+{{end}}

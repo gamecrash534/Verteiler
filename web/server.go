@@ -39,6 +39,7 @@ func RunServer(c config.Config) {
 	mux.HandleFunc("/assets/{cat}/{f}", resourceHandler)
 	mux.HandleFunc("/browse", browse)
 	mux.HandleFunc("/browse/{path...}", browse)
+	mux.HandleFunc("/search", search)
 	mux.HandleFunc("/preview/{path...}", preview)
 	mux.HandleFunc("/raw/{path...}", raw)
 	mux.HandleFunc("/download/{path...}", download)
@@ -112,6 +113,29 @@ func browse(w http.ResponseWriter, r *http.Request) {
 			UpIcon:     icons["up"],
 			HasParent:  false,
 			Entries:    fromStorageEntries(en),
+		},
+	})
+}
+
+func search(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query().Get("q")
+
+	en, err := storage.SearchDirectoryContents(query)
+	if err != nil {
+		onError(w, 500, "An internal error occurred", err)
+		return
+	}
+
+	lt := cdt(LayoutTmpl{
+		IsSearching: true,
+		Title:       query,
+	})
+
+	renderPage(w, "search", PageData{
+		LayoutTmpl: lt,
+		Data: SearchTmpl{
+			Query:   query,
+			Entries: fromStorageEntries(en),
 		},
 	})
 }
