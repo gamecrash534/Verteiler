@@ -15,7 +15,7 @@ func main() {
 	conf := *getConf()
 
 	storage.Init(conf.Server.DataDirectory, conf.Admin.TempUploadDir)
-	web.RunServer(conf)
+	web.RunServer(&conf)
 }
 
 func getConf() *config.Config {
